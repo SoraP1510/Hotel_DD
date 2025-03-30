@@ -1,9 +1,42 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:test3/screens/Detail.dart';
 import 'package:test3/screens/SearchBox.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<dynamic> _hotels = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchHotels();
+  }
+
+  Future<void> _fetchHotels() async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://hotel-api-six.vercel.app/hotels'),
+      );
+      if (response.statusCode == 200) {
+        setState(() {
+          _hotels = json.decode(response.body);
+        });
+      } else {
+        print("Failed to load hotels: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error fetching hotels: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,13 +46,10 @@ class HomePage extends StatelessWidget {
           const SliverAppBar(
             backgroundColor: Colors.white,
             pinned: true,
-            floating: false,
             elevation: 1,
             title: Text('Hotel DD', style: TextStyle(color: Colors.black)),
             centerTitle: true,
           ),
-
-          // ✅ Sticky Search Box
           SliverPersistentHeader(
             pinned: true,
             delegate: _SearchBoxDelegate(
@@ -29,8 +59,6 @@ class HomePage extends StatelessWidget {
               ),
             ),
           ),
-
-          // Section Title
           const SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -40,22 +68,25 @@ class HomePage extends StatelessWidget {
               ),
             ),
           ),
-
-          // ✅ Grid of clickable hotel cards
           SliverPadding(
             padding: const EdgeInsets.all(16),
             sliver: SliverGrid(
               delegate: SliverChildBuilderDelegate(
-                (context, index) => InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HotelDetailPage()),
-                    );
-                  },
-                  child: const HotelCardPlaceholder(),
-                ),
-                childCount: 8,
+                (context, index) {
+                  final hotel = _hotels[index];
+                  return InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HotelDetailPage(),
+                        ),
+                      );
+                    },
+                    child: HotelCard(hotel: hotel),
+                  );
+                },
+                childCount: _hotels.length,
               ),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
@@ -71,11 +102,25 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class HotelCardPlaceholder extends StatelessWidget {
-  const HotelCardPlaceholder({super.key});
+class HotelCard extends StatelessWidget {
+  final dynamic hotel;
+  const HotelCard({super.key, required this.hotel});
+
+  double _averageRating(List<dynamic> reviews) {
+    if (reviews.isEmpty) return 0;
+    double sum = 0;
+    for (var r in reviews) {
+      final rating = r['rating'];
+      if (rating != null) sum += rating.toDouble();
+    }
+    return sum / reviews.length;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final reviews = hotel['reviews'] ?? [];
+    final avgRating = _averageRating(reviews);
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -85,41 +130,63 @@ class HotelCardPlaceholder extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // รูป (placeholder)
+          // รูปโรงแรม
           Container(
             height: 100,
+            width: double.infinity,
             decoration: BoxDecoration(
               color: Colors.grey.shade300,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(12)),
+              image: hotel['hotel_image'] != null && hotel['hotel_image'] != ""
+                  ? DecorationImage(
+                      image: NetworkImage(hotel['hotel_image']),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
             ),
-            child: const Center(child: Icon(Icons.image, color: Colors.grey)),
+            child: hotel['hotel_image'] == null || hotel['hotel_image'] == ""
+                ? const Center(child: Icon(Icons.image, color: Colors.grey))
+                : null,
           ),
-          const Padding(
-            padding: EdgeInsets.all(8),
+
+          Padding(
+            padding: const EdgeInsets.all(8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Sample Room Title",
-                    maxLines: 2, overflow: TextOverflow.ellipsis),
-                SizedBox(height: 4),
+                Text(
+                  hotel['hotel_name'] ?? 'No name',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(Icons.location_on, size: 14, color: Colors.grey),
-                    SizedBox(width: 4),
-                    Text("City Name", style: TextStyle(fontSize: 12)),
+                    const Icon(Icons.location_on, size: 14, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    Text(
+                      "${hotel['city'] ?? 'Unknown'}, ${hotel['province'] ?? ''}",
+                      style: const TextStyle(fontSize: 12),
+                    ),
                   ],
                 ),
-                SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(Icons.star, size: 12, color: Color.fromARGB(255, 255, 131, 218)),
-                    SizedBox(width: 4),
-                    Text("9.8", style: TextStyle(fontSize: 12)),
-                    SizedBox(width: 4),
-                    Text("Exceptional · 8 reviews",
-                        style: TextStyle(fontSize: 12)),
-                  ],
-                ),
+                const SizedBox(height: 4),
+                reviews.isNotEmpty
+                    ? Row(
+                        children: [
+                          const Icon(Icons.star,
+                              size: 12,
+                              color: Color.fromARGB(255, 255, 131, 218)),
+                          const SizedBox(width: 4),
+                          Text(avgRating.toStringAsFixed(1),
+                              style: const TextStyle(fontSize: 12)),
+                          const SizedBox(width: 4),
+                          Text("· ${reviews.length} reviews",
+                              style: const TextStyle(fontSize: 12)),
+                        ],
+                      )
+                    : const Text("No reviews", style: TextStyle(fontSize: 12)),
               ],
             ),
           ),
@@ -135,7 +202,8 @@ class _SearchBoxDelegate extends SliverPersistentHeaderDelegate {
   _SearchBoxDelegate({required this.child});
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Material(
       elevation: overlapsContent ? 4 : 0,
       color: Colors.white,
