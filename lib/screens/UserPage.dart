@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:test3/screens/Cpass.dart';
-import 'package:test3/screens/Cphone.dart';
+import 'Cpass.dart';
+import 'Cphone.dart';
 
 class UserPage extends StatelessWidget {
-  const UserPage({super.key});
+  final String fname;
+  final String lname;
+  final String email;
+  final String phone;
+
+  const UserPage({
+    super.key,
+    required this.fname,
+    required this.lname,
+    required this.email,
+    required this.phone,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,16 +37,16 @@ class UserPage extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("First Name:  ___________________________"),
+              Text("First Name: $fname", style: const TextStyle(fontSize: 18)),
               const SizedBox(height: 12),
-              const Text("Last Name:   ____________________________"),
+              Text("Last Name: $lname", style: const TextStyle(fontSize: 18)),
               const SizedBox(height: 12),
-              const Text("E-mail:      _________________________________"),
+              Text("E-mail: $email", style: const TextStyle(fontSize: 18)),
               const SizedBox(height: 12),
-              const Text("Phone number: _______________________"),
+              Text("Phone number: $phone",
+                  style: const TextStyle(fontSize: 18)),
               const SizedBox(height: 30),
 
-              // ปุ่ม Change Password
               Center(
                 child: Column(
                   children: [
@@ -54,13 +65,9 @@ class UserPage extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 30, vertical: 12),
                       ),
-                      child: const Text(
-                          "Change Password"), // ถ้าจะให้สื่อถึง ChangePhonePage ควรเปลี่ยนข้อความด้วย
+                      child: const Text("Change Password"),
                     ),
-
                     const SizedBox(height: 15),
-
-                    // ปุ่ม Change Phone
                     ElevatedButton(
                       onPressed: () => Navigator.push(
                         context,
@@ -71,22 +78,22 @@ class UserPage extends StatelessWidget {
                         backgroundColor: const Color(0xFFFCCAFF),
                         foregroundColor: Colors.black,
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 30, vertical: 12),
                       ),
                       child: const Text("Change Phone number"),
                     ),
                     const SizedBox(height: 15),
-
-                    // ปุ่ม Delete
                     ElevatedButton(
                       onPressed: () {},
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF1417),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 30, vertical: 12),
                       ),

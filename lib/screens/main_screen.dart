@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:test3/screens/HomePage.dart';
-// import 'package:test3/screens/User_Page.dart';
+import 'HomePage.dart';
 import 'UserPage.dart';
+import 'sign_in_screen.dart';
 
-/// หน้า MainScreen จัดการ BottomNavigationBar สลับหน้า Home/User
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -14,20 +13,37 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = const [
-    HomePage(),  // หน้า Home
-    UserPage(),  // หน้า User
-  ];
+  Map<String, dynamic>? _userData;
+
+  void _updateUserData(Map<String, dynamic> userData) {
+    setState(() {
+      _userData = userData;
+      _currentIndex = 1;
+    });
+  }
+
+  List<Widget> _buildPages() {
+    return [
+      const HomePage(),
+      _userData == null
+          ? SignInScreen(onSignIn: _updateUserData)
+          : UserPage(
+              fname: _userData!['fname'],
+              lname: _userData!['lname'],
+              email: _userData!['email'],
+              phone: _userData!['phone'],
+            ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // แสดงหน้า HomePage หรือ UserPage ตาม _currentIndex
-      body: _pages[_currentIndex],
+      body: _buildPages()[_currentIndex],
 
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        selectedItemColor: Color.fromARGB(255, 255, 131, 218),
+        selectedItemColor: const Color.fromARGB(255, 255, 131, 218),
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(

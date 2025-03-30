@@ -8,7 +8,11 @@ class SignUpScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[300],
-      appBar: AppBar(leading: const BackButton(), backgroundColor: Colors.transparent, elevation: 0),
+      appBar: AppBar(
+        leading: const BackButton(),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: Center(
         child: Container(
           padding: const EdgeInsets.all(20),
@@ -28,19 +32,24 @@ class SignUpScreen extends StatelessWidget {
               const TextField(obscureText: true, decoration: InputDecoration(labelText: 'Password')),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                },
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent),
-                child: const Text('SignUp'),
+                child: const Text('Sign Up'),
               ),
               TextButton(
                 onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SignInScreen(),
-                              ),
-                            );
-                          },
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SignInScreen(
+                        onSignIn: (userData) {
+                          print("User signed in: $userData");
+                        },
+                      ),
+                    ),
+                  );
+                },
                 child: const Text("Back to Sign In"),
               ),
             ],
