@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
-class AgodaSearchBox extends StatefulWidget {
-  const AgodaSearchBox({super.key});
+class SearchBox extends StatefulWidget {
+  final Function(String) onSearch;
+
+  const SearchBox({super.key, required this.onSearch});
 
   @override
-  State<AgodaSearchBox> createState() => _AgodaSearchBoxState();
+  State<SearchBox> createState() => _SearchBoxState();
 }
 
-class _AgodaSearchBoxState extends State<AgodaSearchBox> {
+class _SearchBoxState extends State<SearchBox> {
   final TextEditingController _locationController = TextEditingController();
 
   DateTime? _checkInDate = DateTime.now();
@@ -46,9 +48,7 @@ class _AgodaSearchBoxState extends State<AgodaSearchBox> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text("Select Guests",
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text("Select Guests", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -58,9 +58,7 @@ class _AgodaSearchBoxState extends State<AgodaSearchBox> {
                       children: [
                         IconButton(
                           icon: const Icon(Icons.remove),
-                          onPressed: _rooms > 1
-                              ? () => setSheetState(() => _rooms--)
-                              : null,
+                          onPressed: _rooms > 1 ? () => setSheetState(() => _rooms--) : null,
                         ),
                         Text(_rooms.toString()),
                         IconButton(
@@ -79,9 +77,7 @@ class _AgodaSearchBoxState extends State<AgodaSearchBox> {
                       children: [
                         IconButton(
                           icon: const Icon(Icons.remove),
-                          onPressed: _adults > 1
-                              ? () => setSheetState(() => _adults--)
-                              : null,
+                          onPressed: _adults > 1 ? () => setSheetState(() => _adults--) : null,
                         ),
                         Text(_adults.toString()),
                         IconButton(
@@ -95,7 +91,7 @@ class _AgodaSearchBoxState extends State<AgodaSearchBox> {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
-                    setState(() {});
+                    setState(() {}); // refresh UI
                     Navigator.pop(context);
                   },
                   child: const Text("Done"),
@@ -109,14 +105,18 @@ class _AgodaSearchBoxState extends State<AgodaSearchBox> {
   }
 
   void _onSearchPressed() {
-    final snackBar = SnackBar(
-      content: Text(
-        'Searching: ${_locationController.text} | '
-        '${_checkInDate?.toString().split(" ")[0]} - ${_checkOutDate?.toString().split(" ")[0]} | '
-        '$_rooms Room(s), $_adults Adult(s)',
+    final keyword = _locationController.text.trim();
+    widget.onSearch(keyword); // ส่งค่าไป filter ที่ HomePage
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Searching: $keyword | '
+          '${_checkInDate?.toString().split(" ")[0]} - ${_checkOutDate?.toString().split(" ")[0]} | '
+          '$_rooms room(s), $_adults adult(s)',
+        ),
       ),
     );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override
@@ -179,10 +179,10 @@ class _AgodaSearchBoxState extends State<AgodaSearchBox> {
           ),
           const SizedBox(height: 8),
 
-          // Guests
+          // Guest picker
           _SearchTile(
             icon: Icons.person,
-            text: "$_rooms room $_adults adults",
+            text: "$_rooms room · $_adults adult",
             onTap: _showGuestPicker,
           ),
           const SizedBox(height: 16),
@@ -200,10 +200,7 @@ class _AgodaSearchBoxState extends State<AgodaSearchBox> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: const Text("Search",
-                      style: TextStyle(
-                        color: Colors.black,
-                      )),
+                  child: const Text("Search", style: TextStyle(color: Colors.black)),
                 ),
               ),
             ],
@@ -239,41 +236,6 @@ class _SearchTile extends StatelessWidget {
             Text(text, style: const TextStyle(fontSize: 14)),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  final String label;
-  final int count;
-
-  const _FilterChip({required this.label, required this.count});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.blue),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 10,
-            backgroundColor: Colors.blue,
-            child: Text(
-              count.toString(),
-              style: const TextStyle(fontSize: 12, color: Colors.white),
-            ),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 14, color: Colors.blue),
-          )
-        ],
       ),
     );
   }

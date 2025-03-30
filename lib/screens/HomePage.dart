@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:test3/screens/Detail.dart';
-import 'package:test3/screens/SearchBox.dart';
+import 'package:test3/screens/SearchBox.dart'; // ต้องใช้ตัวใหม่ที่รับ onSearch
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,7 +12,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<dynamic> _hotels = [];
+  List<dynamic> _allHotels = [];
+  List<dynamic> _filteredHotels = [];
 
   @override
   void initState() {
@@ -23,12 +24,13 @@ class _HomePageState extends State<HomePage> {
   Future<void> _fetchHotels() async {
     try {
       final response = await http.get(
-        Uri.parse(
-            'https://hotel-api-six.vercel.app/hotels'),
+        Uri.parse('https://hotel-api-six.vercel.app/hotels'),
       );
       if (response.statusCode == 200) {
+        final data = json.decode(response.body);
         setState(() {
-          _hotels = json.decode(response.body);
+          _allHotels = data;
+          _filteredHotels = data;
         });
       } else {
         print("Failed to load hotels: ${response.statusCode}");
@@ -36,6 +38,17 @@ class _HomePageState extends State<HomePage> {
     } catch (e) {
       print("Error fetching hotels: $e");
     }
+  }
+
+  void _filterHotels(String keyword) {
+    final search = keyword.toLowerCase();
+    setState(() {
+      _filteredHotels = _allHotels.where((hotel) {
+        final city = (hotel['city'] ?? '').toString().toLowerCase();
+        final province = (hotel['province'] ?? '').toString().toLowerCase();
+        return city.contains(search) || province.contains(search);
+      }).toList();
+    });
   }
 
   @override
@@ -53,9 +66,9 @@ class _HomePageState extends State<HomePage> {
           SliverPersistentHeader(
             pinned: true,
             delegate: _SearchBoxDelegate(
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: AgodaSearchBox(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: SearchBox(onSearch: _filterHotels), // ✅ ส่งฟังก์ชันเข้าไป
               ),
             ),
           ),
@@ -73,7 +86,7 @@ class _HomePageState extends State<HomePage> {
             sliver: SliverGrid(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
-                  final hotel = _hotels[index];
+                  final hotel = _filteredHotels[index];
                   return InkWell(
                     onTap: () {
                       Navigator.push(
@@ -86,7 +99,7 @@ class _HomePageState extends State<HomePage> {
                     child: HotelCard(hotel: hotel),
                   );
                 },
-                childCount: _hotels.length,
+                childCount: _filteredHotels.length,
               ),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
@@ -100,6 +113,28 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+}
+
+// เหมือนเดิม
+class _SearchBoxDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+  _SearchBoxDelegate({required this.child});
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Material(
+      elevation: overlapsContent ? 4 : 0,
+      color: Colors.white,
+      child: child,
+    );
+  }
+
+  @override
+  double get maxExtent => 268;
+  @override
+  double get minExtent => 268;
+  @override
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) => true;
 }
 
 class HotelCard extends StatelessWidget {
@@ -194,30 +229,4 @@ class HotelCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class _SearchBoxDelegate extends SliverPersistentHeaderDelegate {
-  final Widget child;
-
-  _SearchBoxDelegate({required this.child});
-
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Material(
-      elevation: overlapsContent ? 4 : 0,
-      color: Colors.white,
-      child: child,
-    );
-  }
-
-  @override
-  double get maxExtent => 268;
-
-  @override
-  double get minExtent => 268;
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
-      true;
 }
