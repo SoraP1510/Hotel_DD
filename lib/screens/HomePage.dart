@@ -112,7 +112,7 @@ class HotelCardPlaceholder extends StatelessWidget {
                 SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(Icons.star, size: 12, color: Colors.blue),
+                    Icon(Icons.star, size: 12, color: Color.fromARGB(255, 255, 131, 218)),
                     SizedBox(width: 4),
                     Text("9.8", style: TextStyle(fontSize: 12)),
                     SizedBox(width: 4),
