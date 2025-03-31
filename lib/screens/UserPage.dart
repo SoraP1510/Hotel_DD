@@ -43,8 +43,7 @@ class UserPage extends StatelessWidget {
               const SizedBox(height: 12),
               Text("E-mail: $email", style: const TextStyle(fontSize: 18)),
               const SizedBox(height: 12),
-              Text("Phone number: $phone",
-                  style: const TextStyle(fontSize: 18)),
+              Text("Phone number: $phone", style: const TextStyle(fontSize: 18)),
               const SizedBox(height: 30),
 
               Center(
@@ -53,17 +52,13 @@ class UserPage extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () => Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => const ChangePasswordPage()),
+                        MaterialPageRoute(builder: (_) => const ChangePasswordPage()),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFCCAFF),
                         foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                       ),
                       child: const Text("Change Password"),
                     ),
@@ -71,17 +66,13 @@ class UserPage extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () => Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => const ChangePhonePage()),
+                        MaterialPageRoute(builder: (_) => const ChangePhonePage()),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFCCAFF),
                         foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                       ),
                       child: const Text("Change Phone number"),
                     ),
@@ -91,11 +82,8 @@ class UserPage extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF1417),
                         foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                       ),
                       child: const Text("Delete Account"),
                     ),

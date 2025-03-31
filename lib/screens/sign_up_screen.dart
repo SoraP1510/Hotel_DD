@@ -40,7 +40,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         body: json.encode(userData),
       );
 
-    if (response.statusCode >= 200) {
+      if (response.statusCode >= 200 && response.statusCode < 300) {
         _showDialog('Sign Up Successful!', Colors.green);
       } else {
         _showDialog('Failed to sign up', Colors.red);
@@ -57,20 +57,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
   void _showDialog(String message, Color color) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            message,
-            style: TextStyle(color: color),
+      builder: (_) => AlertDialog(
+        title: Text(message, style: TextStyle(color: color)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
+        ],
+      ),
     );
   }
 
@@ -110,16 +105,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
               TextButton(
                 onPressed: () {
-                  Navigator.pop(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SignInScreen(
-                        onSignIn: (userData) {
-                          print("User signed in: $userData");
-                        },
-                      ),
-                    ),
-                  );
+                  Navigator.pop(context);
                 },
                 child: const Text("Back to Sign In"),
               ),

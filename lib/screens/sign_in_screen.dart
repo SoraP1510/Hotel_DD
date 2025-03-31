@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'sign_up_screen.dart';
+import 'package:test3/session_manager.dart';
 
 class SignInScreen extends StatefulWidget {
   final Function(Map<String, dynamic>) onSignIn;
@@ -29,13 +30,15 @@ class _SignInScreenState extends State<SignInScreen> {
         List<dynamic> users = json.decode(response.body);
 
         var user = users.firstWhere(
-          (user) =>
-              user['email'] == _emailController.text &&
-              user['password'] == _passwordController.text,
+          (u) =>
+              u['email'] == _emailController.text &&
+              u['password'] == _passwordController.text,
           orElse: () => null,
         );
 
         if (user != null) {
+          // แจ้ง MainScreen ว่ามี user แล้ว
+          SessionManager.currentUser = user;
           widget.onSignIn({
             'fname': user['fname'],
             'lname': user['lname'],
@@ -60,20 +63,15 @@ class _SignInScreenState extends State<SignInScreen> {
   void _showDialog(String message, Color color) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            message,
-            style: TextStyle(color: color),
+      builder: (_) => AlertDialog(
+        title: Text(message, style: TextStyle(color: color)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
+        ],
+      ),
     );
   }
 
@@ -81,10 +79,7 @@ class _SignInScreenState extends State<SignInScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[300],
-      appBar: AppBar(
-        title: const Text('Sign In'),
-        backgroundColor: Colors.pinkAccent,
-      ),
+      appBar: AppBar(title: const Text('Sign In'), backgroundColor: Colors.pinkAccent),
       body: Center(
         child: Container(
           padding: const EdgeInsets.all(20),
@@ -111,19 +106,14 @@ class _SignInScreenState extends State<SignInScreen> {
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
                       onPressed: _signIn,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pinkAccent,
-                      ),
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent),
                       child: const Text('Sign In'),
                     ),
-              const SizedBox(height: 10),
               TextButton(
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const SignUpScreen(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const SignUpScreen()),
                   );
                 },
                 child: const Text("Don't have an account? Sign Up"),

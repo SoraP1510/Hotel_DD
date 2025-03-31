@@ -36,8 +36,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
   Future<void> _fetchRooms() async {
     try {
       final response = await http.get(
-        Uri.parse(
-            'https://hotel-api-six.vercel.app/rooms/hotel/${widget.hotelId}'),
+        Uri.parse('https://hotel-api-six.vercel.app/rooms/hotel/${widget.hotelId}'),
       );
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -54,9 +53,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
 
   Future<void> _fetchHotels() async {
     try {
-      final response = await http.get(
-        Uri.parse('https://hotel-api-six.vercel.app/hotels'),
-      );
+      final response = await http.get(Uri.parse('https://hotel-api-six.vercel.app/hotels'));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final hotels = (data as List).cast<Map<String, dynamic>>();
@@ -83,7 +80,6 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
             _description = hotel['description'];
             _city = hotel['city'];
             _province = hotel['province'];
-            _reviewCount = reviews.length;
           });
         } else {
           print("Hotel not found.");
@@ -130,9 +126,6 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                         ? const Center(child: Icon(Icons.image, size: 60))
                         : null,
                   ),
-
-                  const SizedBox(height: 8),
-                  
                   const SizedBox(height: 16),
 
                   // ชื่อโรงแรม + Review
@@ -144,17 +137,18 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                           _hotelName ?? '',
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                       ),
                       const SizedBox(width: 8),
                       GestureDetector(
                         onTap: () {
+                          // ไปหน้า Review พร้อม hotelId
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const ReviewPage()),
+                              builder: (_) => ReviewPage(hotelId: widget.hotelId),
+                            ),
                           );
                         },
                         child: Text(
@@ -171,23 +165,15 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      _avgRating != null
-                          ? _buildStarRating(_avgRating!)
-                          : const SizedBox.shrink(),
+                      if (_avgRating != null) _buildStarRating(_avgRating!),
                     ],
                   ),
 
                   const Divider(height: 32),
-
-                  Text(
-                    _description ?? 'No description',
-                    style: const TextStyle(fontSize: 14),
-                  ),
+                  Text(_description ?? 'No description', style: const TextStyle(fontSize: 14)),
 
                   const SizedBox(height: 16),
-                  const Text("Location",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-
+                  const Text("Location", style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   SizedBox(
                     height: 200,
@@ -199,8 +185,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                             ),
                             children: [
                               TileLayer(
-                                urlTemplate:
-                                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                                 userAgentPackageName: 'com.example.app',
                               ),
                               MarkerLayer(
@@ -209,8 +194,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                                     width: 40,
                                     height: 40,
                                     point: LatLng(_latitude!, _longitude!),
-                                    child: const Icon(Icons.location_pin,
-                                        color: Colors.red, size: 40),
+                                    child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
                                   )
                                 ],
                               ),
@@ -220,8 +204,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                   ),
 
                   const SizedBox(height: 16),
-                  const Text("Tag",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text("Tag", style: TextStyle(fontWeight: FontWeight.bold)),
                   Wrap(
                     spacing: 8,
                     children: [
@@ -231,26 +214,22 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                   ),
 
                   const Divider(height: 32),
-                  const Text("Room",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text("Room", style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
 
-                  ..._rooms
-                      .map((room) => _roomItem(
-                            context,
-                            room['room_type'] ?? 'Room',
-                            '฿${room['room_price'].toString()}',
-                            room['room_image'],
-                          ))
-                      .toList(),
+                  // แสดงรายการห้อง
+                  ..._rooms.map((room) => _roomItem(context, room)).toList(),
                 ],
               ),
             ),
     );
   }
 
-  Widget _roomItem(BuildContext context, String roomType, String price,
-      String? roomImageUrl) {
+  Widget _roomItem(BuildContext context, dynamic room) {
+    final roomType = room['room_type'] ?? 'Room';
+    final price = '฿${room['room_price'].toString()}';
+    final roomImageUrl = room['room_image'];
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
@@ -261,10 +240,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
             color: Colors.grey[300],
             borderRadius: BorderRadius.circular(8),
             image: roomImageUrl != null && roomImageUrl.isNotEmpty
-                ? DecorationImage(
-                    image: NetworkImage(roomImageUrl),
-                    fit: BoxFit.cover,
-                  )
+                ? DecorationImage(image: NetworkImage(roomImageUrl), fit: BoxFit.cover)
                 : null,
           ),
           child: (roomImageUrl == null || roomImageUrl.isEmpty)
@@ -275,10 +251,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
         subtitle: Text(price),
         trailing: ElevatedButton(
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const PaymentPage()),
-            );
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentPage()));
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFFCCAFF),
@@ -291,6 +264,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
   }
 }
 
+// ฟังก์ชันแสดงดาว
 Widget _buildStarRating(double avgRating) {
   int fullStars = (avgRating / 2).floor();
   bool hasHalfStar = (avgRating / 2) % 1 >= 0.5;

@@ -5,7 +5,6 @@ void main() {
   runApp(const MyApp());
 }
 
-/// แอปหลัก ที่กำหนดธีม และเรียก MainScreen เป็นหน้าแรก
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -14,9 +13,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Hotel DD App',
       theme: ThemeData(
-        primarySwatch: Colors.blue, // ธีมสีน้ำเงิน
+        primarySwatch: Colors.blue
       ),
-      home: const MainScreen(),     // เรียกหน้า MainScreen
+      home: const MainScreen(),
     );
   }
 }
