@@ -67,8 +67,9 @@ class _HomePageState extends State<HomePage> {
             pinned: true,
             delegate: _SearchBoxDelegate(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: SearchBox(onSearch: _filterHotels), // ✅ ส่งฟังก์ชันเข้าไป
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: SearchBox(onSearch: _filterHotels),
               ),
             ),
           ),
@@ -92,7 +93,8 @@ class _HomePageState extends State<HomePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const HotelDetailPage(),
+                          builder: (context) =>
+                              HotelDetailPage(hotelId: hotel['hotel_id']),
                         ),
                       );
                     },
@@ -121,7 +123,8 @@ class _SearchBoxDelegate extends SliverPersistentHeaderDelegate {
   _SearchBoxDelegate({required this.child});
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Material(
       elevation: overlapsContent ? 4 : 0,
       color: Colors.white,
@@ -134,7 +137,8 @@ class _SearchBoxDelegate extends SliverPersistentHeaderDelegate {
   @override
   double get minExtent => 268;
   @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) => true;
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
+      true;
 }
 
 class HotelCard extends StatelessWidget {
