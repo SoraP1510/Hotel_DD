@@ -110,7 +110,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
               TextButton(
                 onPressed: () {
-                  Navigator.pushReplacement(
+                  Navigator.pop(
                     context,
                     MaterialPageRoute(
                       builder: (context) => SignInScreen(
