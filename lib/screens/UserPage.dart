@@ -81,7 +81,10 @@ class UserPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[300],
-      appBar: AppBar(title: const Text("User"), leading: const BackButton()),
+      appBar: AppBar(
+        title: const Text("User"),
+        automaticallyImplyLeading: false,
+        ),
       body: Center(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 40),
@@ -104,7 +107,8 @@ class UserPage extends StatelessWidget {
               const SizedBox(height: 12),
               Text("E-mail: $email", style: const TextStyle(fontSize: 18)),
               const SizedBox(height: 12),
-              Text("Phone number: $phone", style: const TextStyle(fontSize: 18)),
+              Text("Phone number: $phone",
+                  style: const TextStyle(fontSize: 18)),
               const SizedBox(height: 30),
               Center(
                 child: Column(
