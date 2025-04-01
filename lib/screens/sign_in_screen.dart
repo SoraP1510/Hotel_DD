@@ -5,8 +5,9 @@ import 'sign_up_screen.dart';
 import 'package:test3/session_manager.dart';
 
 class SignInScreen extends StatefulWidget {
-  final Function(Map<String, dynamic>) onSignIn;
-  const SignInScreen({super.key, required this.onSignIn});
+  final Function(Map<String, dynamic>)? onSignIn; // ทำให้ไม่ required
+
+  const SignInScreen({super.key, this.onSignIn});
 
   @override
   State<SignInScreen> createState() => _SignInScreenState();
@@ -37,15 +38,22 @@ class _SignInScreenState extends State<SignInScreen> {
         );
 
         if (user != null) {
-          // แจ้ง MainScreen ว่ามี user แล้ว
+          // บันทึก session
           SessionManager.currentUser = user;
-          widget.onSignIn({
-            'userId':user['user_id'],
-            'fname': user['fname'],
-            'lname': user['lname'],
-            'email': user['email'],
-            'phone': user['phone'],
-          });
+
+          // ถ้ามี onSignIn (จากหน้าอื่นเรียก), ก็เรียก callback
+          if (widget.onSignIn != null) {
+            widget.onSignIn!({
+              'userId': user['user_id'],
+              'fname': user['fname'],
+              'lname': user['lname'],
+              'email': user['email'],
+              'phone': user['phone'],
+            });
+          } else {
+            // ถ้าไม่มี ให้พาไปหน้า MainScreen โดยตรง
+            Navigator.pushReplacementNamed(context, '/');
+          }
         } else {
           _showDialog('Invalid Email or Password', Colors.red);
         }

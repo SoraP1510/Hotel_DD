@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'Cpass.dart';
 import 'Cphone.dart';
+import 'package:test3/session_manager.dart';
+import 'main_screen.dart'; // เพิ่ม import เพื่อกลับ MainScreen
 
 class UserPage extends StatelessWidget {
-   final int userId; // เพิ่ม userId
+  final int userId;
   final String fname;
   final String lname;
   final String email;
@@ -26,10 +28,21 @@ class UserPage extends StatelessWidget {
       final response = await http.delete(url);
 
       if (response.statusCode == 200) {
+        // แสดง SnackBar
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Account deleted successfully.")),
         );
-        Navigator.pop(context); // หรือ redirect ไปหน้า Login
+
+        await Future.delayed(const Duration(seconds: 1));
+
+        // ล้าง session แล้วกลับหน้า MainScreen
+        SessionManager.currentUser = null;
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const MainScreen()),
+          (route) => false,
+        );
       } else {
         throw Exception('Failed to delete account: ${response.body}');
       }
@@ -38,10 +51,8 @@ class UserPage extends StatelessWidget {
         SnackBar(content: Text("Error: ${e.toString()}")),
       );
     }
-  
+  }
 
-  // ฟังก์ชัน confirmDelete ยังเหมือนเดิม
-}
   void confirmDelete(BuildContext context) {
     showDialog(
       context: context,
@@ -101,13 +112,16 @@ class UserPage extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const ChangePasswordPage()),
+                        MaterialPageRoute(
+                            builder: (_) => const ChangePasswordPage()),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFCCAFF),
                         foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 30, vertical: 12),
                       ),
                       child: const Text("Change Password"),
                     ),
@@ -115,13 +129,16 @@ class UserPage extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const ChangePhonePage()),
+                        MaterialPageRoute(
+                            builder: (_) => const ChangePhonePage()),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFCCAFF),
                         foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 30, vertical: 12),
                       ),
                       child: const Text("Change Phone number"),
                     ),
@@ -131,8 +148,10 @@ class UserPage extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF1417),
                         foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 30, vertical: 12),
                       ),
                       child: const Text("Delete Account"),
                     ),
