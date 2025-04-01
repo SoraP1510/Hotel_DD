@@ -100,12 +100,12 @@ class _ChangePhonePageState extends State<ChangePhonePage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                controller: _newPhoneController,
-                decoration: const InputDecoration(labelText: 'New Phone number'),
+              controller: _oldPhoneController,
+                decoration: const InputDecoration(labelText: 'Old Phone number'),
               ),
               TextField(
-                controller: _oldPhoneController,
-                decoration: const InputDecoration(labelText: 'Old Phone number'),
+                  controller: _newPhoneController,
+                decoration: const InputDecoration(labelText: 'New Phone number'),
               ),
               const SizedBox(height: 20),
               _isLoading
