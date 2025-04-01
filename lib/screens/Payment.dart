@@ -1,21 +1,43 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:test3/models/booking_info.dart';
 
 class PaymentPage extends StatelessWidget {
-  const PaymentPage({super.key});
+  final String roomType;
+  final double roomPrice;
+  final String? roomImageUrl;
+  final BookingInfo bookingInfo;
+
+  const PaymentPage({
+    super.key,
+    required this.roomType,
+    required this.roomPrice,
+    required this.bookingInfo,
+    this.roomImageUrl,
+  });
+
+  final String promptPayNumber = '0615387806';
 
   @override
   Widget build(BuildContext context) {
+    final int rooms = bookingInfo.rooms;
+    final int guests = bookingInfo.guests;
+
+    final double subtotal = roomPrice * rooms;
+    final double tax = subtotal * 0.07;
+    final double total = subtotal + tax;
+
+    final qrUrl = 'https://promptpay.io/$promptPayNumber/${total.toStringAsFixed(0)}';
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Payment'),
-        leading: const BackButton(),
-      ),
+      appBar: AppBar(title: const Text('Payment'), leading: const BackButton()),
       backgroundColor: Colors.grey[300],
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // Hotel Picture
+            // Room Info
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -24,42 +46,43 @@ class PaymentPage extends StatelessWidget {
                 boxShadow: [BoxShadow(color: Colors.pink.shade100, blurRadius: 10)],
               ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    height: 100,
-                    width: double.infinity,
-                    color: Colors.grey[400],
-                    child: const Center(child: Text("Hotel Picture")),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Room Picture + ข้อมูลห้อง
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          height: 60,
-                          width: 60,
-                          color: Colors.grey[400],
-                          child: const Center(child: Text("Room Picture")),
+                  const Text("Room Selected", style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(8),
+                          image: roomImageUrl != null
+                              ? DecorationImage(
+                                  image: NetworkImage(roomImageUrl!),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
                         ),
-                        const SizedBox(width: 12),
-                        const Expanded(child: Text("ข้อมูลห้องพัก")),
-                      ],
-                    ),
+                        child: roomImageUrl == null
+                            ? const Center(child: Icon(Icons.image))
+                            : null,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(child: Text(roomType)),
+                    ],
                   ),
+                  const SizedBox(height: 12),
+                  Text("Guests: $guests คน"),
+                  Text("Rooms: $rooms ห้อง"),
                 ],
               ),
             ),
 
             const SizedBox(height: 20),
 
-            // สรุปราคา
+            // Summary
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -68,13 +91,14 @@ class PaymentPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(25),
                 boxShadow: [BoxShadow(color: Colors.pink.shade100, blurRadius: 10)],
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("ราคาห้องพัก:"),
-                  Text("ภาษี:"),
-                  Divider(),
-                  Text("Total :", style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text("ราคาห้องพัก: ฿${subtotal.toStringAsFixed(2)}"),
+                  Text("ภาษี 7%: ฿${tax.toStringAsFixed(2)}"),
+                  const Divider(),
+                  Text("Total: ฿${total.toStringAsFixed(2)}",
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -93,15 +117,53 @@ class PaymentPage extends StatelessWidget {
               child: Column(
                 children: [
                   Image.network(
-                    'https://promptpay.io/qr', // ใช้ลิงก์จริงหากมี
-                    height: 160,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.qr_code, size: 120),
+                    qrUrl,
+                    height: 180,
+                    errorBuilder: (_, __, ___) => const Icon(Icons.qr_code, size: 120),
                   ),
                   const SizedBox(height: 12),
-                  const Text("Scan To Pay", style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text("Scan to pay ฿${total.toStringAsFixed(2)}",
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
                 ],
               ),
+            ),
+
+            const SizedBox(height: 20),
+
+            ElevatedButton(
+              onPressed: () async {
+                final url = Uri.parse('https://hotel-api-six.vercel.app/booking');
+                final response = await http.post(
+                  url,
+                  headers: {'Content-Type': 'application/json'},
+                  body: json.encode({
+                    'check_in': bookingInfo.checkIn.toIso8601String(),
+                    'check_out': bookingInfo.checkOut.toIso8601String(),
+                    'num_guest': bookingInfo.guests,
+                    'num_rooms': bookingInfo.rooms,
+                    'total_price': total.toStringAsFixed(2),
+                    'hotel_id': bookingInfo.hotelId,
+                    'room_id': bookingInfo.roomId,
+                    'user_id': bookingInfo.userId,
+                  }),
+                );
+
+                if (response.statusCode == 200) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Booking success!')),
+                  );
+                  Navigator.pop(context);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: \${response.body}')),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text("จ่ายเงินแล้ว"),
             ),
           ],
         ),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:test3/models/booking_info.dart';
 
 class SearchBox extends StatefulWidget {
-  final Function(String) onSearch;
+  final Function(String, BookingInfo) onSearch;
 
   const SearchBox({super.key, required this.onSearch});
 
@@ -18,7 +19,7 @@ class _SearchBoxState extends State<SearchBox> {
   int _adults = 2;
 
   Future<void> _selectDate(bool isCheckIn) async {
-    final DateTime? picked = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
       initialDate: isCheckIn ? _checkInDate! : _checkOutDate!,
       firstDate: DateTime.now(),
@@ -106,17 +107,13 @@ class _SearchBoxState extends State<SearchBox> {
 
   void _onSearchPressed() {
     final keyword = _locationController.text.trim();
-    widget.onSearch(keyword); // ส่งค่าไป filter ที่ HomePage
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Searching: $keyword | '
-          '${_checkInDate?.toString().split(" ")[0]} - ${_checkOutDate?.toString().split(" ")[0]} | '
-          '$_rooms room(s), $_adults adult(s)',
-        ),
-      ),
+    final booking = BookingInfo(
+      checkIn: _checkInDate!,
+      checkOut: _checkOutDate!,
+      rooms: _rooms,
+      guests: _adults,
     );
+    widget.onSearch(keyword, booking);
   }
 
   @override
@@ -159,9 +156,7 @@ class _SearchBoxState extends State<SearchBox> {
               Expanded(
                 child: _SearchTile(
                   icon: Icons.calendar_today,
-                  text: _checkInDate != null
-                      ? "${_checkInDate!.month}/${_checkInDate!.day}"
-                      : "Check-in",
+                  text: "${_checkInDate!.month}/${_checkInDate!.day}",
                   onTap: () => _selectDate(true),
                 ),
               ),
@@ -169,9 +164,7 @@ class _SearchBoxState extends State<SearchBox> {
               Expanded(
                 child: _SearchTile(
                   icon: Icons.calendar_today,
-                  text: _checkOutDate != null
-                      ? "${_checkOutDate!.month}/${_checkOutDate!.day}"
-                      : "Check-out",
+                  text: "${_checkOutDate!.month}/${_checkOutDate!.day}",
                   onTap: () => _selectDate(false),
                 ),
               ),

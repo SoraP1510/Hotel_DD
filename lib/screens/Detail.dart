@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test3/models/booking_info.dart';
 import 'package:test3/screens/Payment.dart';
 import 'package:test3/screens/Review.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -8,8 +9,9 @@ import 'package:http/http.dart' as http;
 
 class HotelDetailPage extends StatefulWidget {
   final int hotelId;
-  const HotelDetailPage({super.key, required this.hotelId});
-
+  final BookingInfo bookingInfo;
+  const HotelDetailPage({super.key, required this.hotelId, required this.bookingInfo});
+  
   @override
   State<HotelDetailPage> createState() => _HotelDetailPageState();
 }
@@ -25,7 +27,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
   String? _city;
   String? _province;
   double? _avgRating;
-
+  
   @override
   void initState() {
     super.initState();
@@ -226,42 +228,59 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
   }
 
   Widget _roomItem(BuildContext context, dynamic room) {
-    final roomType = room['room_type'] ?? 'Room';
-    final price = '฿${room['room_price'].toString()}';
-    final roomImageUrl = room['room_image'];
+  final roomType = room['room_type'] ?? 'Room';
+  final roomImageUrl = room['room_image'];
+  final priceValue = double.tryParse(room['room_price'].toString()) ?? 0;
+  final priceText = '฿${priceValue.toStringAsFixed(2)}';
 
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: ListTile(
-        leading: Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            color: Colors.grey[300],
-            borderRadius: BorderRadius.circular(8),
-            image: roomImageUrl != null && roomImageUrl.isNotEmpty
-                ? DecorationImage(image: NetworkImage(roomImageUrl), fit: BoxFit.cover)
-                : null,
-          ),
-          child: (roomImageUrl == null || roomImageUrl.isEmpty)
-              ? const Center(child: Icon(Icons.image))
+  return Card(
+    margin: const EdgeInsets.symmetric(vertical: 8),
+    child: ListTile(
+      leading: Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(8),
+          image: roomImageUrl != null && roomImageUrl.isNotEmpty
+              ? DecorationImage(image: NetworkImage(roomImageUrl), fit: BoxFit.cover)
               : null,
         ),
-        title: Text(roomType),
-        subtitle: Text(price),
-        trailing: ElevatedButton(
-          onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentPage()));
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFFCCAFF),
-            foregroundColor: Colors.black,
+        child: (roomImageUrl == null || roomImageUrl.isEmpty)
+            ? const Center(child: Icon(Icons.image))
+            : null,
+      ),
+      title: Text(roomType),
+      subtitle: Text(priceText),
+      trailing: ElevatedButton(
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PaymentPage(
+          roomType: roomType,
+          roomPrice: priceValue,
+          roomImageUrl: roomImageUrl,
+          bookingInfo: BookingInfo(
+            checkIn: widget.bookingInfo.checkIn,
+            checkOut: widget.bookingInfo.checkOut,
+            rooms: widget.bookingInfo.rooms,
+            guests: widget.bookingInfo.guests,
+            hotelId: widget.hotelId,
+            roomId: room['room_id'],
+            userId: 1, // 🔐 ชั่วคราว ใส่ user_id จริงจากระบบ login
           ),
-          child: const Text("Book now"),
         ),
       ),
     );
-  }
+  },
+  child: const Text("Book now"),
+),
+
+    ),
+  );
+}
+
 }
 
 // ฟังก์ชันแสดงดาว

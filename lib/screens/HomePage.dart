@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:test3/models/booking_info.dart';
 import 'package:test3/screens/Detail.dart';
 import 'package:test3/screens/SearchBox.dart'; // ต้องใช้ตัวใหม่ที่รับ onSearch
 
@@ -14,6 +15,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<dynamic> _allHotels = [];
   List<dynamic> _filteredHotels = [];
+  BookingInfo? _bookingInfo;
 
   @override
   void initState() {
@@ -40,7 +42,8 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _filterHotels(String keyword) {
+  void _filterHotels(String keyword, BookingInfo info) {
+    _bookingInfo = info;
     final search = keyword.toLowerCase();
     setState(() {
       _filteredHotels = _allHotels.where((hotel) {
@@ -90,11 +93,20 @@ class _HomePageState extends State<HomePage> {
                   final hotel = _filteredHotels[index];
                   return InkWell(
                     onTap: () {
+                      if (_bookingInfo == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Please press Search first')),
+                        );
+                        return;
+                      }
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              HotelDetailPage(hotelId: hotel['hotel_id']),
+                          builder: (context) => HotelDetailPage(
+                            hotelId: hotel['hotel_id'],
+                            bookingInfo: _bookingInfo!,
+                          ),
                         ),
                       );
                     },
