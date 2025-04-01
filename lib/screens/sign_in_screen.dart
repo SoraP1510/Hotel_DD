@@ -40,6 +40,7 @@ class _SignInScreenState extends State<SignInScreen> {
           // แจ้ง MainScreen ว่ามี user แล้ว
           SessionManager.currentUser = user;
           widget.onSignIn({
+            'userId':user['user_id'],
             'fname': user['fname'],
             'lname': user['lname'],
             'email': user['email'],

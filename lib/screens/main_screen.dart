@@ -32,6 +32,7 @@ class _MainScreenState extends State<MainScreen> {
       _userData == null
           ? SignInScreen(onSignIn: _updateUserData)
           : UserPage(
+              userId: _userData!['userId'],
               fname: _userData!['fname'],
               lname: _userData!['lname'],
               email: _userData!['email'],
