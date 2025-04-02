@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> {
       print("Error fetching hotels: \$e");
     }
   }
-
+  //ทำให้โชว์เฉพาะที่ search
   void _filterHotels(String keyword, BookingInfo info) {
     _bookingInfo = info;
     final search = keyword.toLowerCase();
@@ -159,7 +159,7 @@ class _SearchBoxDelegate extends SliverPersistentHeaderDelegate {
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
       true;
 }
-
+//แผ่น โรงแรม
 class HotelCard extends StatelessWidget {
   final dynamic hotel;
   const HotelCard({super.key, required this.hotel});

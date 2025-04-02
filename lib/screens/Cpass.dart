@@ -87,7 +87,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     return Scaffold(
       appBar: AppBar(
           title: const Text("Change Password"),
-          backgroundColor: Colors.pinkAccent),
+          backgroundColor: Color.fromARGB(255, 255, 131, 218)),
       backgroundColor: Colors.grey[300],
       body: Center(
         child: Container(
@@ -118,7 +118,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   : ElevatedButton(
                       onPressed: _updatePassword,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pinkAccent,
+                        backgroundColor: Color.fromARGB(255, 255, 131, 218),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 40, vertical: 12),
                       ),

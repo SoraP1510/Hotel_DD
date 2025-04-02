@@ -125,7 +125,7 @@ class _UserPageState extends State<UserPage> {
                         });
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFCCAFF),
+                        backgroundColor: Color.fromARGB(255, 255, 131, 218),
                         foregroundColor: Colors.black,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
@@ -144,7 +144,7 @@ class _UserPageState extends State<UserPage> {
                         });
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFCCAFF),
+                        backgroundColor: Color.fromARGB(255, 255, 131, 218),
                         foregroundColor: Colors.black,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),

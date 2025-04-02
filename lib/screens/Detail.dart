@@ -245,6 +245,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
     final priceValue = double.tryParse(room['room_price'].toString()) ?? 0;
     final priceText = '฿${priceValue.toStringAsFixed(2)}';
 
+    //แสดง ห้อง
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
@@ -266,6 +267,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
         title: Text(roomType),
         subtitle: Text(priceText),
         trailing: ElevatedButton(
+          //ปุ่ม book now
           onPressed: () {
             Navigator.push(
               context,
@@ -281,8 +283,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                     guests: widget.bookingInfo.guests,
                     hotelId: widget.hotelId,
                     roomId: room['room_id'],
-                    userId: SessionManager.currentUser?['user_id'] ??
-                        0, // 🔐 ชั่วคราว ใส่ user_id จริงจากระบบ login
+                    userId: SessionManager.currentUser?['user_id'] ?? 0,
                   ),
                 ),
               ),

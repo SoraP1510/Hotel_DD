@@ -117,7 +117,7 @@ class _ChangePhonePageState extends State<ChangePhonePage> {
                   : ElevatedButton(
                       onPressed: _updatePhone,
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.pinkAccent),
+                          backgroundColor: Color.fromARGB(255, 255, 131, 218)),
                       child: const Text('Confirm'),
                     ),
             ],
