@@ -1,41 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:test3/session_manager.dart';
+import 'main_screen.dart';
 import 'Cpass.dart';
 import 'Cphone.dart';
-import 'package:test3/session_manager.dart';
-import 'main_screen.dart'; // เพิ่ม import เพื่อกลับ MainScreen
 
-class UserPage extends StatelessWidget {
-  final int userId;
-  final String fname;
-  final String lname;
-  final String email;
-  final String phone;
+class UserPage extends StatefulWidget {
+  const UserPage({super.key});
 
-  const UserPage({
-    super.key,
-    required this.userId,
-    required this.fname,
-    required this.lname,
-    required this.email,
-    required this.phone,
-  });
+  @override
+  State<UserPage> createState() => _UserPageState();
+}
+
+class _UserPageState extends State<UserPage> {
+  Map<String, dynamic>? user;
+
+  @override
+  void initState() {
+    super.initState();
+    user = SessionManager.currentUser;
+  }
 
   Future<void> deleteAccount(BuildContext context) async {
-    final url = Uri.parse('https://hotel-api-six.vercel.app/users/$userId');
+    final url = Uri.parse('https://hotel-api-six.vercel.app/users/${user?['user_id']}');
 
     try {
       final response = await http.delete(url);
 
       if (response.statusCode == 200) {
-        // แสดง SnackBar
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Account deleted successfully.")),
         );
 
         await Future.delayed(const Duration(seconds: 1));
-
-        // ล้าง session แล้วกลับหน้า MainScreen
         SessionManager.currentUser = null;
 
         Navigator.pushAndRemoveUntil(
@@ -66,7 +63,7 @@ class UserPage extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.pop(ctx); // ปิด dialog
+              Navigator.pop(ctx);
               deleteAccount(context);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -79,12 +76,17 @@ class UserPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fname = user?['fname'] ?? '';
+    final lname = user?['lname'] ?? '';
+    final email = user?['email'] ?? '';
+    final phone = user?['phone'] ?? '';
+
     return Scaffold(
       backgroundColor: Colors.grey[300],
       appBar: AppBar(
         title: const Text("User"),
         automaticallyImplyLeading: false,
-        ),
+      ),
       body: Center(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 40),
@@ -107,42 +109,45 @@ class UserPage extends StatelessWidget {
               const SizedBox(height: 12),
               Text("E-mail: $email", style: const TextStyle(fontSize: 18)),
               const SizedBox(height: 12),
-              Text("Phone number: $phone",
-                  style: const TextStyle(fontSize: 18)),
+              Text("Phone number: $phone", style: const TextStyle(fontSize: 18)),
               const SizedBox(height: 30),
               Center(
                 child: Column(
                   children: [
                     ElevatedButton(
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const ChangePasswordPage()),
-                      ),
+                      onPressed: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const ChangePasswordPage()),
+                        );
+                        setState(() {
+                          user = SessionManager.currentUser; // อัปเดตหลังกลับ
+                        });
+                      },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 255, 131, 218),
+                        backgroundColor: const Color(0xFFFCCAFF),
                         foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                       ),
                       child: const Text("Change Password"),
                     ),
                     const SizedBox(height: 15),
                     ElevatedButton(
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const ChangePhonePage()),
-                      ),
+                      onPressed: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const ChangePhonePage()),
+                        );
+                        setState(() {
+                          user = SessionManager.currentUser; // อัปเดตหลังเปลี่ยนเบอร์
+                        });
+                      },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 255, 131, 218),
+                        backgroundColor: const Color(0xFFFCCAFF),
                         foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                       ),
                       child: const Text("Change Phone number"),
                     ),
@@ -152,10 +157,8 @@ class UserPage extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF1417),
                         foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                       ),
                       child: const Text("Delete Account"),
                     ),

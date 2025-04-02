@@ -28,16 +28,10 @@ class _MainScreenState extends State<MainScreen> {
     return [
       const HomePage(),
       // ถ้ายังไม่ Sign In => ไปหน้า SignInScreen
-      // ถ้า Sign In แล้ว => ไปหน้า UserPage
+      // ถ้า Sign In แล้ว => ไปหน้า UserPage (ไม่ต้องส่งค่าอะไรอีก)
       _userData == null
           ? SignInScreen(onSignIn: _updateUserData)
-          : UserPage(
-              userId: _userData!['userId'],
-              fname: _userData!['fname'],
-              lname: _userData!['lname'],
-              email: _userData!['email'],
-              phone: _userData!['phone'],
-            ),
+          : const UserPage(),
     ];
   }
 
