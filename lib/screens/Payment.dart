@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:test3/models/booking_info.dart';
+import 'package:intl/intl.dart';
+import 'package:test3/session_manager.dart'; // ✅ เพิ่มตรงนี้
 
 class PaymentPage extends StatelessWidget {
   final String roomType;
@@ -23,12 +25,20 @@ class PaymentPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final int rooms = bookingInfo.rooms;
     final int guests = bookingInfo.guests;
+    final int nights =
+        bookingInfo.checkOut.difference(bookingInfo.checkIn).inDays;
 
-    final double subtotal = roomPrice * rooms;
+    final double subtotal = roomPrice * rooms * nights;
     final double tax = subtotal * 0.07;
     final double total = subtotal + tax;
 
-    final qrUrl = 'https://promptpay.io/$promptPayNumber/${total.toStringAsFixed(0)}';
+    final qrUrl =
+        'https://promptpay.io/$promptPayNumber/${total.toStringAsFixed(0)}';
+
+    final String checkInFormatted =
+        DateFormat('dd MMM yyyy').format(bookingInfo.checkIn);
+    final String checkOutFormatted =
+        DateFormat('dd MMM yyyy').format(bookingInfo.checkOut);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Payment'), leading: const BackButton()),
@@ -43,12 +53,15 @@ class PaymentPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(25),
-                boxShadow: [BoxShadow(color: Colors.pink.shade100, blurRadius: 10)],
+                boxShadow: [
+                  BoxShadow(color: Colors.pink.shade100, blurRadius: 10)
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Room Selected", style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text("Room Selected",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
                   Row(
                     children: [
@@ -76,6 +89,10 @@ class PaymentPage extends StatelessWidget {
                   const SizedBox(height: 12),
                   Text("Guests: $guests คน"),
                   Text("Rooms: $rooms ห้อง"),
+                  Text("Check-in: $checkInFormatted"), // ✅ เพิ่ม
+                  Text("Check-out: $checkOutFormatted"), // ✅ เพิ่ม
+                  Text(
+                      "Email: ${SessionManager.currentUser?['email'] ?? 'Unknown'}"),
                 ],
               ),
             ),
@@ -89,11 +106,14 @@ class PaymentPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(25),
-                boxShadow: [BoxShadow(color: Colors.pink.shade100, blurRadius: 10)],
+                boxShadow: [
+                  BoxShadow(color: Colors.pink.shade100, blurRadius: 10)
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text("Nights: $nights คืน"), // ✅ เพิ่มแสดงจำนวนคืน
                   Text("ราคาห้องพัก: ฿${subtotal.toStringAsFixed(2)}"),
                   Text("ภาษี 7%: ฿${tax.toStringAsFixed(2)}"),
                   const Divider(),
@@ -112,14 +132,17 @@ class PaymentPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(25),
-                boxShadow: [BoxShadow(color: Colors.pink.shade100, blurRadius: 10)],
+                boxShadow: [
+                  BoxShadow(color: Colors.pink.shade100, blurRadius: 10)
+                ],
               ),
               child: Column(
                 children: [
                   Image.network(
                     qrUrl,
                     height: 180,
-                    errorBuilder: (_, __, ___) => const Icon(Icons.qr_code, size: 120),
+                    errorBuilder: (_, __, ___) =>
+                        const Icon(Icons.qr_code, size: 120),
                   ),
                   const SizedBox(height: 12),
                   Text("Scan to pay ฿${total.toStringAsFixed(2)}",
@@ -132,7 +155,8 @@ class PaymentPage extends StatelessWidget {
 
             ElevatedButton(
               onPressed: () async {
-                final url = Uri.parse('https://hotel-api-six.vercel.app/booking');
+                final url =
+                    Uri.parse('https://hotel-api-six.vercel.app/booking');
                 final response = await http.post(
                   url,
                   headers: {'Content-Type': 'application/json'},
@@ -155,7 +179,7 @@ class PaymentPage extends StatelessWidget {
                   Navigator.pop(context);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Error: \${response.body}')),
+                    SnackBar(content: Text('Error: ${response.body}')),
                   );
                 }
               },

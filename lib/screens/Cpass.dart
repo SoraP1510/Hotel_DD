@@ -44,13 +44,13 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         Uri.parse('https://hotel-api-six.vercel.app/users'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-  "user_id": userId,
-  "fname": user!['fname'],
-  "lname": user['lname'],
-  "email": user['email'],
-  "phone": user['phone'],
-  "password": newPassword,
-}),
+          "user_id": userId,
+          "fname": user!['fname'],
+          "lname": user['lname'],
+          "email": user['email'],
+          "phone": user['phone'],
+          "password": newPassword,
+        }),
       );
 
       if (response.statusCode == 200) {
@@ -85,7 +85,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Change Password"), backgroundColor: Colors.pinkAccent),
+      appBar: AppBar(
+          title: const Text("Change Password"),
+          backgroundColor: Colors.pinkAccent),
       backgroundColor: Colors.grey[300],
       body: Center(
         child: Container(
@@ -117,7 +119,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       onPressed: _updatePassword,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.pinkAccent,
-                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 12),
                       ),
                       child: const Text("Save"),
                     ),

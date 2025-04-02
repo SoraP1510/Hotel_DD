@@ -6,12 +6,14 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:test3/session_manager.dart';
 
 class HotelDetailPage extends StatefulWidget {
   final int hotelId;
   final BookingInfo bookingInfo;
-  const HotelDetailPage({super.key, required this.hotelId, required this.bookingInfo});
-  
+  const HotelDetailPage(
+      {super.key, required this.hotelId, required this.bookingInfo});
+
   @override
   State<HotelDetailPage> createState() => _HotelDetailPageState();
 }
@@ -27,7 +29,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
   String? _city;
   String? _province;
   double? _avgRating;
-  
+
   @override
   void initState() {
     super.initState();
@@ -38,7 +40,8 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
   Future<void> _fetchRooms() async {
     try {
       final response = await http.get(
-        Uri.parse('https://hotel-api-six.vercel.app/rooms/hotel/${widget.hotelId}'),
+        Uri.parse(
+            'https://hotel-api-six.vercel.app/rooms/hotel/${widget.hotelId}'),
       );
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -55,7 +58,8 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
 
   Future<void> _fetchHotels() async {
     try {
-      final response = await http.get(Uri.parse('https://hotel-api-six.vercel.app/hotels'));
+      final response =
+          await http.get(Uri.parse('https://hotel-api-six.vercel.app/hotels'));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final hotels = (data as List).cast<Map<String, dynamic>>();
@@ -139,7 +143,8 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                           _hotelName ?? '',
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -149,7 +154,8 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => ReviewPage(hotelId: widget.hotelId),
+                              builder: (_) =>
+                                  ReviewPage(hotelId: widget.hotelId),
                             ),
                           );
                         },
@@ -172,10 +178,12 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                   ),
 
                   const Divider(height: 32),
-                  Text(_description ?? 'No description', style: const TextStyle(fontSize: 14)),
+                  Text(_description ?? 'No description',
+                      style: const TextStyle(fontSize: 14)),
 
                   const SizedBox(height: 16),
-                  const Text("Location", style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text("Location",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   SizedBox(
                     height: 200,
@@ -187,7 +195,8 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                             ),
                             children: [
                               TileLayer(
-                                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                urlTemplate:
+                                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                                 userAgentPackageName: 'com.example.app',
                               ),
                               MarkerLayer(
@@ -196,7 +205,8 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                                     width: 40,
                                     height: 40,
                                     point: LatLng(_latitude!, _longitude!),
-                                    child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
+                                    child: const Icon(Icons.location_pin,
+                                        color: Colors.red, size: 40),
                                   )
                                 ],
                               ),
@@ -206,7 +216,8 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                   ),
 
                   const SizedBox(height: 16),
-                  const Text("Tag", style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text("Tag",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   Wrap(
                     spacing: 8,
                     children: [
@@ -216,7 +227,8 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                   ),
 
                   const Divider(height: 32),
-                  const Text("Room", style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text("Room",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
 
                   // แสดงรายการห้อง
@@ -228,59 +240,59 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
   }
 
   Widget _roomItem(BuildContext context, dynamic room) {
-  final roomType = room['room_type'] ?? 'Room';
-  final roomImageUrl = room['room_image'];
-  final priceValue = double.tryParse(room['room_price'].toString()) ?? 0;
-  final priceText = '฿${priceValue.toStringAsFixed(2)}';
+    final roomType = room['room_type'] ?? 'Room';
+    final roomImageUrl = room['room_image'];
+    final priceValue = double.tryParse(room['room_price'].toString()) ?? 0;
+    final priceText = '฿${priceValue.toStringAsFixed(2)}';
 
-  return Card(
-    margin: const EdgeInsets.symmetric(vertical: 8),
-    child: ListTile(
-      leading: Container(
-        width: 60,
-        height: 60,
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          borderRadius: BorderRadius.circular(8),
-          image: roomImageUrl != null && roomImageUrl.isNotEmpty
-              ? DecorationImage(image: NetworkImage(roomImageUrl), fit: BoxFit.cover)
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        leading: Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(8),
+            image: roomImageUrl != null && roomImageUrl.isNotEmpty
+                ? DecorationImage(
+                    image: NetworkImage(roomImageUrl), fit: BoxFit.cover)
+                : null,
+          ),
+          child: (roomImageUrl == null || roomImageUrl.isEmpty)
+              ? const Center(child: Icon(Icons.image))
               : null,
         ),
-        child: (roomImageUrl == null || roomImageUrl.isEmpty)
-            ? const Center(child: Icon(Icons.image))
-            : null,
-      ),
-      title: Text(roomType),
-      subtitle: Text(priceText),
-      trailing: ElevatedButton(
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PaymentPage(
-          roomType: roomType,
-          roomPrice: priceValue,
-          roomImageUrl: roomImageUrl,
-          bookingInfo: BookingInfo(
-            checkIn: widget.bookingInfo.checkIn,
-            checkOut: widget.bookingInfo.checkOut,
-            rooms: widget.bookingInfo.rooms,
-            guests: widget.bookingInfo.guests,
-            hotelId: widget.hotelId,
-            roomId: room['room_id'],
-            userId: 1, // 🔐 ชั่วคราว ใส่ user_id จริงจากระบบ login
-          ),
+        title: Text(roomType),
+        subtitle: Text(priceText),
+        trailing: ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => PaymentPage(
+                  roomType: roomType,
+                  roomPrice: priceValue,
+                  roomImageUrl: roomImageUrl,
+                  bookingInfo: BookingInfo(
+                    checkIn: widget.bookingInfo.checkIn,
+                    checkOut: widget.bookingInfo.checkOut,
+                    rooms: widget.bookingInfo.rooms,
+                    guests: widget.bookingInfo.guests,
+                    hotelId: widget.hotelId,
+                    roomId: room['room_id'],
+                    userId: SessionManager.currentUser?['user_id'] ??
+                        0, // 🔐 ชั่วคราว ใส่ user_id จริงจากระบบ login
+                  ),
+                ),
+              ),
+            );
+          },
+          child: const Text("Book now"),
         ),
       ),
     );
-  },
-  child: const Text("Book now"),
-),
-
-    ),
-  );
-}
-
+  }
 }
 
 // ฟังก์ชันแสดงดาว
@@ -292,11 +304,14 @@ Widget _buildStarRating(double avgRating) {
   return Row(
     children: [
       for (int i = 0; i < fullStars; i++)
-        const Icon(Icons.star, color: Color.fromARGB(255, 255, 131, 218), size: 20),
+        const Icon(Icons.star,
+            color: Color.fromARGB(255, 255, 131, 218), size: 20),
       if (hasHalfStar)
-        const Icon(Icons.star_half, color: Color.fromARGB(255, 255, 131, 218), size: 20),
+        const Icon(Icons.star_half,
+            color: Color.fromARGB(255, 255, 131, 218), size: 20),
       for (int i = 0; i < emptyStars; i++)
-        const Icon(Icons.star_border, color: Color.fromARGB(255, 255, 131, 218), size: 20),
+        const Icon(Icons.star_border,
+            color: Color.fromARGB(255, 255, 131, 218), size: 20),
     ],
   );
 }

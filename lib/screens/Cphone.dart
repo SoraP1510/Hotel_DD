@@ -86,7 +86,9 @@ class _ChangePhonePageState extends State<ChangePhonePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[300],
-      appBar: AppBar(title: const Text("Change Phone number"), leading: const BackButton()),
+      appBar: AppBar(
+          title: const Text("Change Phone number"),
+          leading: const BackButton()),
       body: Center(
         child: Container(
           padding: const EdgeInsets.all(20),
@@ -100,19 +102,22 @@ class _ChangePhonePageState extends State<ChangePhonePage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-              controller: _oldPhoneController,
-                decoration: const InputDecoration(labelText: 'Old Phone number'),
+                controller: _oldPhoneController,
+                decoration:
+                    const InputDecoration(labelText: 'Old Phone number'),
               ),
               TextField(
-                  controller: _newPhoneController,
-                decoration: const InputDecoration(labelText: 'New Phone number'),
+                controller: _newPhoneController,
+                decoration:
+                    const InputDecoration(labelText: 'New Phone number'),
               ),
               const SizedBox(height: 20),
               _isLoading
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
                       onPressed: _updatePhone,
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.pinkAccent),
                       child: const Text('Confirm'),
                     ),
             ],

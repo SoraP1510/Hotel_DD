@@ -5,7 +5,7 @@ import 'sign_up_screen.dart';
 import 'package:test3/session_manager.dart';
 
 class SignInScreen extends StatefulWidget {
-  final Function(Map<String, dynamic>)? onSignIn; // ทำให้ไม่ required
+  final Function(Map<String, dynamic>)? onSignIn;
 
   const SignInScreen({super.key, this.onSignIn});
 
@@ -19,54 +19,47 @@ class _SignInScreenState extends State<SignInScreen> {
   bool _isLoading = false;
 
   Future<void> _signIn() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
-    const String apiUrl = 'https://hotel-api-six.vercel.app/users';
-
+    const String apiUrl = 'https://hotel-api-six.vercel.app/users/login';
+    
     try {
-      final response = await http.get(Uri.parse(apiUrl));
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': _emailController.text.trim(),
+          'password': _passwordController.text.trim(),
+        }),
+      );
+
       if (response.statusCode == 200) {
-        List<dynamic> users = json.decode(response.body);
+        print("Login response: ${response.body}");
+        final user = json.decode(response.body);
 
-        var user = users.firstWhere(
-          (u) =>
-              u['email'] == _emailController.text &&
-              u['password'] == _passwordController.text,
-          orElse: () => null,
-        );
+        // บันทึก session
+        SessionManager.currentUser = user;
 
-        if (user != null) {
-          // บันทึก session
-          SessionManager.currentUser = user;
-
-          // ถ้ามี onSignIn (จากหน้าอื่นเรียก), ก็เรียก callback
-          if (widget.onSignIn != null) {
-            widget.onSignIn!({
-              'userId': user['user_id'],
-              'fname': user['fname'],
-              'lname': user['lname'],
-              'email': user['email'],
-              'phone': user['phone'],
-            });
-          } else {
-            // ถ้าไม่มี ให้พาไปหน้า MainScreen โดยตรง
-            Navigator.pushReplacementNamed(context, '/');
-          }
+        // ถ้ามี onSignIn (จาก MainScreen)
+        if (widget.onSignIn != null) {
+          widget.onSignIn!({
+            'userId': user['user_id'],
+            'fname': user['fname'],
+            'lname': user['lname'],
+            'email': user['email'],
+            'phone': user['phone'],
+          });
         } else {
-          _showDialog('Invalid Email or Password', Colors.red);
+          Navigator.pushReplacementNamed(context, '/');
         }
       } else {
-        _showDialog('Error connecting to server', Colors.orange);
+        _showDialog('Invalid Email or Password', Colors.red);
       }
     } catch (e) {
       _showDialog('An error occurred: $e', Colors.red);
     }
 
-    setState(() {
-      _isLoading = false;
-    });
+    setState(() => _isLoading = false);
   }
 
   void _showDialog(String message, Color color) {

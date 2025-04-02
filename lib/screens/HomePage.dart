@@ -17,9 +17,17 @@ class _HomePageState extends State<HomePage> {
   List<dynamic> _filteredHotels = [];
   BookingInfo? _bookingInfo;
 
+  final BookingInfo _defaultBookingInfo = BookingInfo(
+    checkIn: DateTime.now(),
+    checkOut: DateTime.now().add(const Duration(days: 1)),
+    rooms: 1,
+    guests: 2,
+  );
+
   @override
   void initState() {
     super.initState();
+    _bookingInfo = _defaultBookingInfo;
     _fetchHotels();
   }
 
@@ -35,10 +43,10 @@ class _HomePageState extends State<HomePage> {
           _filteredHotels = data;
         });
       } else {
-        print("Failed to load hotels: ${response.statusCode}");
+        print("Failed to load hotels: \${response.statusCode}");
       }
     } catch (e) {
-      print("Error fetching hotels: $e");
+      print("Error fetching hotels: \$e");
     }
   }
 
@@ -129,7 +137,6 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// เหมือนเดิม
 class _SearchBoxDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
   _SearchBoxDelegate({required this.child});
@@ -173,6 +180,7 @@ class HotelCard extends StatelessWidget {
     final avgRating = _averageRating(reviews);
 
     return Container(
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: Colors.white,
@@ -181,7 +189,6 @@ class HotelCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // รูปโรงแรม
           Container(
             height: 100,
             width: double.infinity,
@@ -200,7 +207,6 @@ class HotelCard extends StatelessWidget {
                 ? const Center(child: Icon(Icons.image, color: Colors.grey))
                 : null,
           ),
-
           Padding(
             padding: const EdgeInsets.all(8),
             child: Column(
@@ -208,6 +214,7 @@ class HotelCard extends StatelessWidget {
               children: [
                 Text(
                   hotel['hotel_name'] ?? 'No name',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -216,9 +223,13 @@ class HotelCard extends StatelessWidget {
                   children: [
                     const Icon(Icons.location_on, size: 14, color: Colors.grey),
                     const SizedBox(width: 4),
-                    Text(
-                      "${hotel['city'] ?? 'Unknown'}, ${hotel['province'] ?? ''}",
-                      style: const TextStyle(fontSize: 12),
+                    Expanded(
+                      child: Text(
+                        "${hotel['city'] ?? 'Unknown'}, ${hotel['province'] ?? ''}",
+                        style: const TextStyle(fontSize: 12),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),

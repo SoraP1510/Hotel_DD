@@ -12,7 +12,7 @@ class BookingInfo {
     required this.checkOut,
     required this.rooms,
     required this.guests,
-    this.hotelId,  // ✅ ไม่ต้อง required แล้ว
+    this.hotelId, // ✅ ไม่ต้อง required แล้ว
     this.roomId,
     this.userId,
   });
