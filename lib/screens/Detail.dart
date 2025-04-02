@@ -220,7 +220,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                   const SizedBox(height: 12),
 
                   // แสดงรายการห้อง
-                  ..._rooms.map((room) => _roomItem(context, room)).toList(),
+                  ..._rooms.map((room) => _roomItem(context, room)),
                 ],
               ),
             ),

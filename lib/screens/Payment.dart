@@ -155,7 +155,7 @@ class PaymentPage extends StatelessWidget {
                   Navigator.pop(context);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: \${response.body}')),
+                    const SnackBar(content: Text('Error: \${response.body}')),
                   );
                 }
               },
