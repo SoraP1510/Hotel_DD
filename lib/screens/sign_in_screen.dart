@@ -81,7 +81,7 @@ class _SignInScreenState extends State<SignInScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[300],
-      appBar: AppBar(title: const Text('Sign In'), backgroundColor: Colors.pinkAccent),
+      
       body: Center(
         child: Container(
           padding: const EdgeInsets.all(20),
@@ -108,7 +108,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
                       onPressed: _signIn,
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent),
+                      style: ElevatedButton.styleFrom(backgroundColor: Color.fromARGB(255, 255, 131, 218)),
                       child: const Text('Sign In'),
                     ),
               TextButton(

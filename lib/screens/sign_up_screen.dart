@@ -100,7 +100,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
                       onPressed: _signUp,
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent),
+                      style: ElevatedButton.styleFrom(backgroundColor: Color.fromARGB(255, 255, 131, 218)),
                       child: const Text('Sign Up'),
                     ),
               TextButton(

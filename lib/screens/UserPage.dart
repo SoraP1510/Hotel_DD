@@ -120,7 +120,7 @@ class UserPage extends StatelessWidget {
                             builder: (_) => const ChangePasswordPage()),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFCCAFF),
+                        backgroundColor: const Color.fromARGB(255, 255, 131, 218),
                         foregroundColor: Colors.black,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20)),
@@ -137,7 +137,7 @@ class UserPage extends StatelessWidget {
                             builder: (_) => const ChangePhonePage()),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFCCAFF),
+                        backgroundColor: const Color.fromARGB(255, 255, 131, 218),
                         foregroundColor: Colors.black,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20)),
