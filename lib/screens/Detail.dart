@@ -46,7 +46,8 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
   Future<void> _fetchRooms() async {
     try {
       final response = await http.get(
-        Uri.parse('https://hotel-api-six.vercel.app/rooms/hotel/${widget.hotelId}'),
+        Uri.parse(
+            'https://hotel-api-six.vercel.app/rooms/hotel/${widget.hotelId}'),
       );
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -61,11 +62,14 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
 
   Future<void> _fetchHotels() async {
     try {
-      final response = await http.get(Uri.parse('https://hotel-api-six.vercel.app/hotels'));
+      final response =
+          await http.get(Uri.parse('https://hotel-api-six.vercel.app/hotels'));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final hotels = (data as List).cast<Map<String, dynamic>>();
-        final hotel = hotels.firstWhere((item) => item['hotel_id'] == widget.hotelId, orElse: () => {});
+        final hotel = hotels.firstWhere(
+            (item) => item['hotel_id'] == widget.hotelId,
+            orElse: () => {});
         if (hotel.isNotEmpty) {
           final reviews = hotel['reviews'] ?? [];
           double sum = 0;
@@ -92,7 +96,8 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
   }
 
   Future<int> _fetchAvailableRooms(String roomId, String date) async {
-    final url = Uri.parse('https://hotel-api-six.vercel.app/booking/check-availability?room_id=$roomId&date=$date');
+    final url = Uri.parse(
+        'https://hotel-api-six.vercel.app/booking/check-availability?room_id=$roomId&date=$date');
     final response = await http.get(url);
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -126,7 +131,9 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                       borderRadius: BorderRadius.circular(8),
                       color: Colors.grey[300],
                       image: _imageUrl != null && _imageUrl != ""
-                          ? DecorationImage(image: NetworkImage(_imageUrl!), fit: BoxFit.cover)
+                          ? DecorationImage(
+                              image: NetworkImage(_imageUrl!),
+                              fit: BoxFit.cover)
                           : null,
                     ),
                     child: (_imageUrl == null || _imageUrl == "")
@@ -145,14 +152,18 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                           _hotelName ?? '',
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                       ),
                       GestureDetector(
                         onTap: () {
-                          Navigator.push(context, MaterialPageRoute(
-                            builder: (_) => ReviewPage(hotelId: widget.hotelId),
-                          ));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    ReviewPage(hotelId: widget.hotelId),
+                              ));
                         },
                         child: Text("$_reviewCount Review",
                             style: const TextStyle(
@@ -163,26 +174,32 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                   ),
 
                   const SizedBox(height: 4),
-                  if (_avgRating != null) _buildStarRating(_avgRating!), // ดาวให้คะแนน
+                  if (_avgRating != null)
+                    _buildStarRating(_avgRating!), // ดาวให้คะแนน
 
                   const Divider(height: 32),
 
                   // รายละเอียดโรงแรม
-                  Text(_description ?? 'No description', style: const TextStyle(fontSize: 14)),
+                  Text(_description ?? 'No description',
+                      style: const TextStyle(fontSize: 14)),
 
                   const SizedBox(height: 16),
 
                   // แผนที่ตำแหน่งโรงแรม
-                  const Text("Location", style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text("Location",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   SizedBox(
                     height: 200,
                     child: hasLocation
                         ? FlutterMap(
-                            options: MapOptions(center: LatLng(_latitude!, _longitude!), zoom: 15.0),
+                            options: MapOptions(
+                                center: LatLng(_latitude!, _longitude!),
+                                zoom: 15.0),
                             children: [
                               TileLayer(
-                                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                urlTemplate:
+                                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                                 userAgentPackageName: 'com.example.app',
                               ),
                               MarkerLayer(
@@ -191,7 +208,8 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                                     width: 40,
                                     height: 40,
                                     point: LatLng(_latitude!, _longitude!),
-                                    child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
+                                    child: const Icon(Icons.location_pin,
+                                        color: Colors.red, size: 40),
                                   )
                                 ],
                               ),
@@ -203,7 +221,8 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                   const SizedBox(height: 16),
 
                   // แท็ก
-                  const Text("Tag", style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text("Tag",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   Wrap(
                     spacing: 8,
                     children: [
@@ -213,7 +232,8 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                   ),
 
                   const Divider(height: 32),
-                  const Text("Room", style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text("Room",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
 
                   // รายการห้อง
@@ -230,7 +250,8 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
     final roomImageUrl = room['room_image'];
     final priceValue = double.tryParse(room['room_price'].toString()) ?? 0;
     final priceText = '฿${priceValue.toStringAsFixed(2)}';
-    final checkInDate = widget.bookingInfo.checkIn.toIso8601String().substring(0, 10);
+    final checkInDate =
+        widget.bookingInfo.checkIn.toIso8601String().substring(0, 10);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -242,7 +263,8 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
             color: Colors.grey[300],
             borderRadius: BorderRadius.circular(8),
             image: roomImageUrl != null && roomImageUrl.isNotEmpty
-                ? DecorationImage(image: NetworkImage(roomImageUrl), fit: BoxFit.cover)
+                ? DecorationImage(
+                    image: NetworkImage(roomImageUrl), fit: BoxFit.cover)
                 : null,
           ),
           child: (roomImageUrl == null || roomImageUrl.isEmpty)
@@ -255,7 +277,8 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
           children: [
             Text(priceText),
             FutureBuilder<int>(
-              future: _fetchAvailableRooms(room['room_id'].toString(), checkInDate),
+              future:
+                  _fetchAvailableRooms(room['room_id'].toString(), checkInDate),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Text("Checking availability...");
@@ -269,8 +292,8 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
           ],
         ),
         trailing: ElevatedButton(
-          onPressed: () {
-            Navigator.push(
+          onPressed: () async {
+            final result = await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => PaymentPage(
@@ -289,6 +312,11 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                 ),
               ),
             );
+
+// หลังจากกลับมาจาก PaymentPage ให้เช็กว่ามีการจองสำเร็จ แล้ว refresh
+            if (result == 'refresh') {
+              _fetchRooms(); // โหลดห้องใหม่
+            }
           },
           child: const Text("Book now"),
         ),
@@ -305,9 +333,15 @@ Widget _buildStarRating(double avgRating) {
 
   return Row(
     children: [
-      for (int i = 0; i < fullStars; i++) const Icon(Icons.star, color: Color.fromARGB(255, 255, 131, 218), size: 20),
-      if (hasHalfStar) const Icon(Icons.star_half, color: Color.fromARGB(255, 255, 131, 218), size: 20),
-      for (int i = 0; i < emptyStars; i++) const Icon(Icons.star_border, color: Color.fromARGB(255, 255, 131, 218), size: 20),
+      for (int i = 0; i < fullStars; i++)
+        const Icon(Icons.star,
+            color: Color.fromARGB(255, 255, 131, 218), size: 20),
+      if (hasHalfStar)
+        const Icon(Icons.star_half,
+            color: Color.fromARGB(255, 255, 131, 218), size: 20),
+      for (int i = 0; i < emptyStars; i++)
+        const Icon(Icons.star_border,
+            color: Color.fromARGB(255, 255, 131, 218), size: 20),
     ],
   );
 }

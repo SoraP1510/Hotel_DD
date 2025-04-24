@@ -237,7 +237,7 @@ class PaymentPage extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Booking success!')),
                   );
-                  Navigator.pop(context); // กลับหน้าก่อนหน้า
+                  Navigator.pop(context, 'refresh'); // ส่งค่า 'refresh' กลับมา
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Error: ${response.body}')),
