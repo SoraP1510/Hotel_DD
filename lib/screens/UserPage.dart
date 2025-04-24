@@ -169,6 +169,25 @@ class _UserPageState extends State<UserPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                       ),
                       child: const Text("Delete Account"),
+                      
+                    ),
+                    const SizedBox(height: 15),
+                    ElevatedButton(
+                      onPressed: () {
+                        SessionManager.currentUser = null;
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => const MainScreen()),
+                          (route) => false,
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                      ),
+                      child: const Text("Sign Out"),
                     ),
                   ],
                 ),
