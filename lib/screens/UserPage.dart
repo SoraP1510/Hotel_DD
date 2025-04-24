@@ -13,35 +13,40 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
-  Map<String, dynamic>? user;
+  Map<String, dynamic>? user; // ใช้ Map เพื่อเก็บข้อมูลผู้ใช้
 
+//โดยจะดึงข้อมูลผู้ใช้จาก session manager
+// และเก็บไว้ในตัวแปร user
   @override
   void initState() {
     super.initState();
     user = SessionManager.currentUser;
   }
 
+//ฟังชันลบบัญชีผู้ใช้
   Future<void> deleteAccount(BuildContext context) async {
-    final url = Uri.parse('https://hotel-api-six.vercel.app/users/${user?['user_id']}');
+    final url = Uri.parse('https://hotel-api-six.vercel.app/users/${user?['user_id']}'); //API
 
     try {
-      final response = await http.delete(url);
+      final response = await http.delete(url);  // ส่งคำขอลบบัญชีผู้ใช้ไป API
 
+//ผลลัพธ์
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Account deleted successfully.")),
         );
 
         await Future.delayed(const Duration(seconds: 1));
-        SessionManager.currentUser = null;
+        SessionManager.currentUser = null; //รอ 1 วินาทีแล้วลบข้อมูลผู้ใช้ใน session โดยการตั้งค่า user ที่ login ใน session manager เป็น null
 
+//จากนั้นจะนำผู้ใช้กลับไปที่หน้าหลัก
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (_) => const MainScreen()),
           (route) => false,
         );
       } else {
-        throw Exception('Failed to delete account: ${response.body}');
+        throw Exception('Failed to delete account: ${response.body}'); // ถ้าลบไม่สำเร็จให้แสดงข้อความ error
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -50,6 +55,8 @@ class _UserPageState extends State<UserPage> {
     }
   }
 
+//ฟังชันยืนยันการลบ
+//แค่โชว์กล่องข้อความยืนยันการลบบัญชีผู้ใช้ถ้ากดยืนยันก็จะลบบัญชีผู้ใช้โดยการเรียกใช้ฟังชัน deleteAccount
   void confirmDelete(BuildContext context) {
     showDialog(
       context: context,
@@ -74,6 +81,7 @@ class _UserPageState extends State<UserPage> {
     );
   }
 
+//ยะยะยะยูไอ UI
   @override
   Widget build(BuildContext context) {
     final fname = user?['fname'] ?? '';

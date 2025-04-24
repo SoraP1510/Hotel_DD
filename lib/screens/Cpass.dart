@@ -9,14 +9,15 @@ class ChangePasswordPage extends StatefulWidget {
   @override
   State<ChangePasswordPage> createState() => _ChangePasswordPageState();
 }
-
+//ดึงค่าจาก textfield *รับค่า oldpassword และ newpassword*
 class _ChangePasswordPageState extends State<ChangePasswordPage> {
   final TextEditingController _oldPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
   bool _isLoading = false;
 
+// ฟังชันอัปเดต password
   Future<void> _updatePassword() async {
-    final user = SessionManager.currentUser;
+    final user = SessionManager.currentUser; // ดึงข้อมูลผู้ใช้จาก session
     final userId = user?['user_id'];
 
     if (userId == null) {
@@ -27,18 +28,19 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     final oldPassword = _oldPasswordController.text;
     final newPassword = _newPasswordController.text;
 
-    if (newPassword.isEmpty) {
+    if (newPassword.isEmpty) { // ตรวจสอบว่ารหัสผ่านใหม่มีค่าหรือไม่
       _showDialog("New password cannot be empty", Colors.orange);
       return;
     }
 
-    if (oldPassword != user?['password']) {
-      _showDialog("Old password is incorrect", Colors.red);
+    if (oldPassword != user?['password']) {   // ตรวจสอบรหัสผ่านเก่าใน session
+      _showDialog("Old password is incorrect", Colors.red); // ถ้ารหัสผ่านเก่าไม่ถูกต้องก็ error จ้า
       return;
     }
 
     setState(() => _isLoading = true);
 
+//ส่งข้อมูลไปยัง API เพื่ออัปเดตรหัสผ่าน
     try {
       final response = await http.put(
         Uri.parse('https://hotel-api-six.vercel.app/users'),
@@ -53,8 +55,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         }),
       );
 
+// อัปเดตใหม่ใน session
       if (response.statusCode == 200) {
-        // อัปเดต password ใหม่เข้า SessionManager
         SessionManager.currentUser?['password'] = newPassword;
         _showDialog("Password updated successfully", Colors.green);
       } else {
@@ -67,6 +69,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     setState(() => _isLoading = false);
   }
 
+//กล่องข้อความที่แสดงผลลัพธ์
   void _showDialog(String message, Color color) {
     showDialog(
       context: context,
@@ -82,6 +85,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     );
   }
 
+//สร้าง UI 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -122,7 +126,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 40, vertical: 12),
                       ),
-                      child: const Text("Save"),
+                      child: const Text("Save"), // ปุ่ม save
                     ),
             ],
           ),

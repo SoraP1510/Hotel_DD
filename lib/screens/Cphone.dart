@@ -9,17 +9,18 @@ class ChangePhonePage extends StatefulWidget {
   @override
   State<ChangePhonePage> createState() => _ChangePhonePageState();
 }
-
+// ใช้ texteditingcontroller เพื่อดึงค่าต่างๆจาก textfield *รับค่า oldphone และ newphone*
 class _ChangePhonePageState extends State<ChangePhonePage> {
   final TextEditingController _oldPhoneController = TextEditingController();
   final TextEditingController _newPhoneController = TextEditingController();
   bool _isLoading = false;
 
+// ฟังชันอัปเดตหมายเลขโทรศัพท์
   Future<void> _updatePhone() async {
-    final user = SessionManager.currentUser;
-    final userId = user?['user_id'];
+    final user = SessionManager.currentUser; // ดึงข้อมูลผู้ใช้จาก session
+    final userId = user?['user_id']; 
 
-    if (user == null || userId == null) {
+    if (user == null || userId == null) { 
       _showDialog("User not logged in", Colors.red);
       return;
     }
@@ -27,18 +28,18 @@ class _ChangePhonePageState extends State<ChangePhonePage> {
     final oldPhone = _oldPhoneController.text;
     final newPhone = _newPhoneController.text;
 
-    if (newPhone.isEmpty) {
+    if (newPhone.isEmpty) { // ตรวจสอบว่าหมายเลขโทรศัพท์ใหม่มีค่าหรือไม่
       _showDialog("New phone number cannot be empty", Colors.orange);
       return;
     }
 
-    if (oldPhone != user['phone']) {
-      _showDialog("Old phone number is incorrect", Colors.red);
+    if (oldPhone != user['phone']) {  // ตรวจสอบหมายเลขโทรศัพท์เก่าใน session 
+      _showDialog("Old phone number is incorrect", Colors.red); // ถ้าหมายเลขโทรศัพท์เก่าไม่ถูกต้องก็ error จ้า
       return;
     }
+ setState(() => _isLoading = true);
 
-    setState(() => _isLoading = true);
-
+//ส่งข้อมูลไปยัง API เพื่ออัปเดตหมายเลขโทรศัพท์
     try {
       final response = await http.put(
         Uri.parse('https://hotel-api-six.vercel.app/users'),
@@ -53,8 +54,8 @@ class _ChangePhonePageState extends State<ChangePhonePage> {
         }),
       );
 
+ // อัปเดตใหม่ใน session
       if (response.statusCode == 200) {
-        // อัปเดต phone ใหม่ใน session
         SessionManager.currentUser?['phone'] = newPhone;
         _showDialog("Phone number updated successfully", Colors.green);
       } else {
@@ -67,6 +68,7 @@ class _ChangePhonePageState extends State<ChangePhonePage> {
     setState(() => _isLoading = false);
   }
 
+//กล่องข้อความที่แสดงผลลัพธ์
   void _showDialog(String message, Color color) {
     showDialog(
       context: context,
@@ -82,6 +84,7 @@ class _ChangePhonePageState extends State<ChangePhonePage> {
     );
   }
 
+//สร้าง UI
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,7 +121,7 @@ class _ChangePhonePageState extends State<ChangePhonePage> {
                       onPressed: _updatePhone,
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Color.fromARGB(255, 255, 131, 218)),
-                      child: const Text('Confirm'),
+                      child: const Text('Confirm'), //ปุ่ม save
                     ),
             ],
           ),
