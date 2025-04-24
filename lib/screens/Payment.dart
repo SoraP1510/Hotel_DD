@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:test3/models/booking_info.dart';
 import 'package:intl/intl.dart';
-import 'package:test3/session_manager.dart'; // ✅ เพิ่มตรงนี้
+import 'package:test3/session_manager.dart';
 
 class PaymentPage extends StatelessWidget {
   final String roomType;
@@ -89,8 +89,8 @@ class PaymentPage extends StatelessWidget {
                   const SizedBox(height: 12),
                   Text("Guests: $guests คน"),
                   Text("Rooms: $rooms ห้อง"),
-                  Text("Check-in: $checkInFormatted"), // ✅ เพิ่ม
-                  Text("Check-out: $checkOutFormatted"), // ✅ เพิ่ม
+                  Text("Check-in: $checkInFormatted"), 
+                  Text("Check-out: $checkOutFormatted"),
                   Text(
                       "Email: ${SessionManager.currentUser?['email'] ?? 'Unknown'}"),
                 ],
@@ -99,7 +99,7 @@ class PaymentPage extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // Summary
+
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -113,7 +113,7 @@ class PaymentPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Nights: $nights คืน"), // ✅ เพิ่มแสดงจำนวนคืน
+                  Text("Nights: $nights คืน"), 
                   Text("ราคาห้องพัก: ฿${subtotal.toStringAsFixed(2)}"),
                   Text("ภาษี 7%: ฿${tax.toStringAsFixed(2)}"),
                   const Divider(),
@@ -125,7 +125,7 @@ class PaymentPage extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // QR PromptPay
+
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -155,34 +155,83 @@ class PaymentPage extends StatelessWidget {
 
             ElevatedButton(
               onPressed: () async {
-                final url =
-                    Uri.parse('https://hotel-api-six.vercel.app/booking');
-                final response = await http.post(
-                  url,
-                  headers: {'Content-Type': 'application/json'},
-                  body: json.encode({
-                    'check_in': bookingInfo.checkIn.toIso8601String(),
-                    'check_out': bookingInfo.checkOut.toIso8601String(),
-                    'num_guest': bookingInfo.guests,
-                    'num_rooms': bookingInfo.rooms,
-                    'total_price': total.toStringAsFixed(2),
-                    'hotel_id': bookingInfo.hotelId,
-                    'room_id': bookingInfo.roomId,
-                    'user_id': bookingInfo.userId,
-                  }),
-                );
+  final checkIn = bookingInfo.checkIn;
+  final checkOut = bookingInfo.checkOut;
 
-                if (response.statusCode == 200) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Booking success!')),
-                  );
-                  Navigator.pop(context);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: ${response.body}')),
-                  );
-                }
-              },
+
+  final roomResp = await http.get(Uri.parse(
+      'https://hotel-api-six.vercel.app/rooms/${bookingInfo.roomId}'));
+  if (roomResp.statusCode != 200) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('โหลดข้อมูลห้องไม่สำเร็จ')),
+    );
+    return;
+  }
+  final roomData = jsonDecode(roomResp.body);
+  final int roomQty = roomData is List
+      ? int.tryParse(roomData[0]['room_qty'].toString()) ?? 0
+      : int.tryParse(roomData['room_qty'].toString()) ?? 0;
+
+
+  final bookingResp = await http.get(Uri.parse(
+      'https://hotel-api-six.vercel.app/booking'));
+  if (bookingResp.statusCode != 200) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('โหลดข้อมูลการจองไม่สำเร็จ')),
+    );
+    return;
+  }
+
+  final allBookings = jsonDecode(bookingResp.body);
+  int totalBooked = 0;
+
+  for (var b in allBookings) {
+    if (b['room_id'] != bookingInfo.roomId) continue;
+
+    final DateTime bIn = DateTime.parse(b['check_in']);
+    final DateTime bOut = DateTime.parse(b['check_out']);
+
+    final bool overlaps = bookingInfo.checkIn.isBefore(bOut) && bookingInfo.checkOut.isAfter(bIn);
+    if (overlaps) {
+      totalBooked += (b['num_rooms'] as num).toInt();
+    }
+  }
+
+  if (totalBooked + bookingInfo.rooms > roomQty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('ห้องเต็มในช่วงเวลานี้')),
+    );
+    return;
+  }
+
+
+  final response = await http.post(
+    Uri.parse('https://hotel-api-six.vercel.app/booking'),
+    headers: {'Content-Type': 'application/json'},
+    body: json.encode({
+      'check_in': bookingInfo.checkIn.toIso8601String(),
+      'check_out': bookingInfo.checkOut.toIso8601String(),
+      'num_guest': bookingInfo.guests,
+      'num_rooms': bookingInfo.rooms,
+      'total_price': total.toStringAsFixed(2),
+      'hotel_id': bookingInfo.hotelId,
+      'room_id': bookingInfo.roomId,
+      'user_id': bookingInfo.userId,
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Booking success!')),
+    );
+    Navigator.pop(context);
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: ${response.body}')),
+    );
+  }
+},
+
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,

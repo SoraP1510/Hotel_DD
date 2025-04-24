@@ -285,21 +285,60 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
           ],
         ),
         trailing: ElevatedButton(
-          onPressed: () {
+          onPressed: () async {
+            final roomId = room['room_id'];
+            final numToBook = widget.bookingInfo.rooms;
+
+            final roomResp = await http.get(
+                Uri.parse('https://hotel-api-six.vercel.app/rooms/$roomId'));
+            if (roomResp.statusCode != 200) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('โหลดข้อมูลห้องไม่สำเร็จ')));
+              return;
+            }
+            final roomData = jsonDecode(roomResp.body);
+            final int roomQty = roomData is List
+                ? int.tryParse(roomData[0]['room_qty'].toString()) ?? 0
+                : int.tryParse(roomData['room_qty'].toString()) ?? 0;
+
+            final bookingResp = await http
+                .get(Uri.parse('https://hotel-api-six.vercel.app/booking'));
+            if (bookingResp.statusCode != 200) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('โหลดข้อมูลการจองไม่สำเร็จ')));
+              return;
+            }
+
+            final allBookings = jsonDecode(bookingResp.body);
+            int totalBooked = 0;
+            for (var b in allBookings) {
+              if (b['room_id'] == roomId) {
+                totalBooked += (b['num_rooms'] as num).toInt();
+              }
+            }
+
+            if (totalBooked + numToBook > roomQty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('ห้องเต็ม ไม่สามารถจองได้เพิ่มเติม')),
+              );
+              return;
+            }
+
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => PaymentPage(
-                  roomType: roomType,
-                  roomPrice: priceValue,
-                  roomImageUrl: roomImageUrl,
+                  roomType: room['room_type'],
+                  roomPrice: double.parse(room['room_price'].toString()),
+                  roomImageUrl: room['room_image'],
                   bookingInfo: BookingInfo(
                     checkIn: widget.bookingInfo.checkIn,
                     checkOut: widget.bookingInfo.checkOut,
-                    rooms: widget.bookingInfo.rooms,
+                    rooms: numToBook,
                     guests: widget.bookingInfo.guests,
                     hotelId: widget.hotelId,
-                    roomId: room['room_id'],
+                    roomId: roomId,
                     userId: SessionManager.currentUser?['user_id'] ?? 0,
                   ),
                 ),

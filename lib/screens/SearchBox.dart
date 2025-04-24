@@ -16,7 +16,7 @@ class _SearchBoxState extends State<SearchBox> {
   DateTime? _checkInDate = DateTime.now();
   DateTime? _checkOutDate = DateTime.now().add(const Duration(days: 1));
   int _rooms = 1;
-  int _adults = 2;
+  int _person = 2;
 
   Future<void> _selectDate(bool isCheckIn) async {
     final picked = await showDatePicker(
@@ -49,7 +49,9 @@ class _SearchBoxState extends State<SearchBox> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text("Select Guests", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text("Select Guests",
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -59,7 +61,9 @@ class _SearchBoxState extends State<SearchBox> {
                       children: [
                         IconButton(
                           icon: const Icon(Icons.remove),
-                          onPressed: _rooms > 1 ? () => setSheetState(() => _rooms--) : null,
+                          onPressed: _rooms > 1
+                              ? () => setSheetState(() => _rooms--)
+                              : null,
                         ),
                         Text(_rooms.toString()),
                         IconButton(
@@ -73,17 +77,19 @@ class _SearchBoxState extends State<SearchBox> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("Adults"),
+                    const Text("person"),
                     Row(
                       children: [
                         IconButton(
                           icon: const Icon(Icons.remove),
-                          onPressed: _adults > 1 ? () => setSheetState(() => _adults--) : null,
+                          onPressed: _person > 1
+                              ? () => setSheetState(() => _person--)
+                              : null,
                         ),
-                        Text(_adults.toString()),
+                        Text(_person.toString()),
                         IconButton(
                           icon: const Icon(Icons.add),
-                          onPressed: () => setSheetState(() => _adults++),
+                          onPressed: () => setSheetState(() => _person++),
                         ),
                       ],
                     ),
@@ -111,7 +117,7 @@ class _SearchBoxState extends State<SearchBox> {
       checkIn: _checkInDate!,
       checkOut: _checkOutDate!,
       rooms: _rooms,
-      guests: _adults,
+      guests: _person,
     );
     widget.onSearch(keyword, booking);
   }
@@ -175,7 +181,7 @@ class _SearchBoxState extends State<SearchBox> {
           // Guest picker
           _SearchTile(
             icon: Icons.person,
-            text: "$_rooms room · $_adults adult",
+            text: "$_rooms room · $_person person",
             onTap: _showGuestPicker,
           ),
           const SizedBox(height: 16),
@@ -193,7 +199,8 @@ class _SearchBoxState extends State<SearchBox> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: const Text("Search", style: TextStyle(color: Colors.black)),
+                  child: const Text("Search",
+                      style: TextStyle(color: Colors.black)),
                 ),
               ),
             ],
