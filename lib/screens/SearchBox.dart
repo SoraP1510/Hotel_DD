@@ -1,8 +1,11 @@
+// import แพ็กเกจและโมเดล BookingInfo ที่จำเป็น
 import 'package:flutter/material.dart';
 import 'package:test3/models/booking_info.dart';
 
+// StatefulWidget สำหรับกล่องค้นหาโรงแรม
 class SearchBox extends StatefulWidget {
-  final Function(String, BookingInfo) onSearch;
+  final Function(String, BookingInfo)
+      onSearch; // callback function สำหรับส่งค่าการค้นหาไปยังหน้า HomePage
 
   const SearchBox({super.key, required this.onSearch});
 
@@ -11,13 +14,16 @@ class SearchBox extends StatefulWidget {
 }
 
 class _SearchBoxState extends State<SearchBox> {
+  // controller สำหรับช่องพิมพ์สถานที่
   final TextEditingController _locationController = TextEditingController();
 
+  // ค่าดีฟอลต์ของวันเข้าพัก วันออก ห้อง และจำนวนคน
   DateTime? _checkInDate = DateTime.now();
   DateTime? _checkOutDate = DateTime.now().add(const Duration(days: 1));
   int _rooms = 1;
   int _person = 2;
 
+  // ฟังก์ชันเปิดปฏิทินเลือกวัน (check-in หรือ check-out)
   Future<void> _selectDate(bool isCheckIn) async {
     final picked = await showDatePicker(
       context: context,
@@ -29,6 +35,7 @@ class _SearchBoxState extends State<SearchBox> {
       setState(() {
         if (isCheckIn) {
           _checkInDate = picked;
+          // ปรับ check-out ให้อย่างน้อย 1 วันหลัง check-in
           if (_checkOutDate!.isBefore(_checkInDate!)) {
             _checkOutDate = _checkInDate!.add(const Duration(days: 1));
           }
@@ -39,6 +46,7 @@ class _SearchBoxState extends State<SearchBox> {
     }
   }
 
+  // Modal แสดงการเลือกจำนวนห้องและคนเข้าพัก
   void _showGuestPicker() {
     showModalBottomSheet(
       context: context,
@@ -53,6 +61,7 @@ class _SearchBoxState extends State<SearchBox> {
                     style:
                         TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
+                // แถวเลือกจำนวนห้อง
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -74,6 +83,7 @@ class _SearchBoxState extends State<SearchBox> {
                     ),
                   ],
                 ),
+                // แถวเลือกจำนวนคน
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -96,9 +106,10 @@ class _SearchBoxState extends State<SearchBox> {
                   ],
                 ),
                 const SizedBox(height: 16),
+                // ปุ่ม Done เพื่อปิด modal
                 ElevatedButton(
                   onPressed: () {
-                    setState(() {}); // refresh UI
+                    setState(() {}); // รีเฟรช UI หลัก
                     Navigator.pop(context);
                   },
                   child: const Text("Done"),
@@ -111,15 +122,17 @@ class _SearchBoxState extends State<SearchBox> {
     );
   }
 
+  // ฟังก์ชันเมื่อกดปุ่ม Search → ส่งข้อมูลกลับผ่าน onSearch
   void _onSearchPressed() {
-    final keyword = _locationController.text.trim();
+    final keyword = _locationController.text.trim(); // ดึงคำค้นหาจากช่อง
     final booking = BookingInfo(
       checkIn: _checkInDate!,
       checkOut: _checkOutDate!,
       rooms: _rooms,
       guests: _person,
     );
-    widget.onSearch(keyword, booking);
+    widget.onSearch(
+        keyword, booking); // เรียก callback ส่งค่ากลับไปยัง HomePage
   }
 
   @override
@@ -139,7 +152,7 @@ class _SearchBoxState extends State<SearchBox> {
       ),
       child: Column(
         children: [
-          // Location input
+          // ช่องใส่สถานที่ค้นหา
           TextField(
             controller: _locationController,
             decoration: InputDecoration(
@@ -156,7 +169,7 @@ class _SearchBoxState extends State<SearchBox> {
           ),
           const SizedBox(height: 8),
 
-          // Date pickers
+          // ปุ่มเลือกวันเข้าและวันออก
           Row(
             children: [
               Expanded(
@@ -178,7 +191,7 @@ class _SearchBoxState extends State<SearchBox> {
           ),
           const SizedBox(height: 8),
 
-          // Guest picker
+          // ปุ่มเลือกจำนวนห้องและคน
           _SearchTile(
             icon: Icons.person,
             text: "$_rooms room · $_person person",
@@ -186,7 +199,7 @@ class _SearchBoxState extends State<SearchBox> {
           ),
           const SizedBox(height: 16),
 
-          // Search button
+          // ปุ่มค้นหา
           Row(
             children: [
               Expanded(
@@ -211,6 +224,7 @@ class _SearchBoxState extends State<SearchBox> {
   }
 }
 
+// คอมโพเนนต์ย่อยสำหรับ tile ที่ใช้แสดงวัน/คน ใน UI
 class _SearchTile extends StatelessWidget {
   final IconData icon;
   final String text;

@@ -1,3 +1,4 @@
+// import ที่จำเป็น
 import 'package:flutter/material.dart';
 import 'package:test3/models/booking_info.dart';
 import 'package:test3/screens/Payment.dart';
@@ -8,48 +9,50 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:test3/session_manager.dart';
 
+// stateful widget สำหรับหน้าแสดงรายละเอียดโรงแรม
 class HotelDetailPage extends StatefulWidget {
-  final int hotelId;
-  final BookingInfo bookingInfo;
-  const HotelDetailPage(
-      {super.key, required this.hotelId, required this.bookingInfo});
+  final int hotelId; // รหัสโรงแรม
+  final BookingInfo bookingInfo; // ข้อมูลการจองที่ส่งมาจากหน้าอื่น
+
+  const HotelDetailPage({
+    super.key,
+    required this.hotelId,
+    required this.bookingInfo,
+  });
 
   @override
   State<HotelDetailPage> createState() => _HotelDetailPageState();
 }
 
 class _HotelDetailPageState extends State<HotelDetailPage> {
-  List<dynamic> _rooms = [];
-  double? _latitude;
-  double? _longitude;
-  String? _hotelName;
-  String? _imageUrl;
-  String? _description;
-  int _reviewCount = 0;
-  String? _city;
-  String? _province;
-  double? _avgRating;
+  List<dynamic> _rooms = []; // รายการห้องของโรงแรม
+  double? _latitude; // ละติจูดของโรงแรม
+  double? _longitude; // ลองจิจูดของโรงแรม
+  String? _hotelName; // ชื่อโรงแรม
+  String? _imageUrl; // รูปภาพโรงแรม
+  String? _description; // รายละเอียดโรงแรม
+  int _reviewCount = 0; // จำนวนรีวิว
+  String? _city; // เมือง
+  String? _province; // จังหวัด
+  double? _avgRating; // คะแนนเฉลี่ย
 
   @override
   void initState() {
     super.initState();
-    _fetchHotels();
-    _fetchRooms();
+    _fetchHotels(); // โหลดข้อมูลโรงแรม
+    _fetchRooms(); // โหลดข้อมูลห้องพัก
   }
 
   Future<void> _fetchRooms() async {
     try {
       final response = await http.get(
-        Uri.parse(
-            'https://hotel-api-six.vercel.app/rooms/hotel/${widget.hotelId}'),
+        Uri.parse('https://hotel-api-six.vercel.app/rooms/hotel/${widget.hotelId}'),
       );
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
           _rooms = data;
         });
-      } else {
-        print("Failed to load rooms: ${response.statusCode}");
       }
     } catch (e) {
       print("Error fetching rooms: $e");
@@ -58,17 +61,11 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
 
   Future<void> _fetchHotels() async {
     try {
-      final response =
-          await http.get(Uri.parse('https://hotel-api-six.vercel.app/hotels'));
+      final response = await http.get(Uri.parse('https://hotel-api-six.vercel.app/hotels'));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final hotels = (data as List).cast<Map<String, dynamic>>();
-
-        final hotel = hotels.firstWhere(
-          (item) => item['hotel_id'] == widget.hotelId,
-          orElse: () => {},
-        );
-
+        final hotel = hotels.firstWhere((item) => item['hotel_id'] == widget.hotelId, orElse: () => {});
         if (hotel.isNotEmpty) {
           final reviews = hotel['reviews'] ?? [];
           double sum = 0;
@@ -87,11 +84,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
             _city = hotel['city'];
             _province = hotel['province'];
           });
-        } else {
-          print("Hotel not found.");
         }
-      } else {
-        print("Failed to load hotels: ${response.statusCode}");
       }
     } catch (e) {
       print("Error fetching hotels: $e");
@@ -99,14 +92,12 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
   }
 
   Future<int> _fetchAvailableRooms(String roomId, String date) async {
-    final url = Uri.parse(
-        'https://hotel-api-six.vercel.app/booking/check-availability?room_id=$roomId&date=$date');
+    final url = Uri.parse('https://hotel-api-six.vercel.app/booking/check-availability?room_id=$roomId&date=$date');
     final response = await http.get(url);
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       return data['available'] ?? 0;
     } else {
-      print('Failed to fetch availability: ${response.statusCode}');
       throw Exception('Failed to fetch availability');
     }
   }
@@ -117,16 +108,17 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_hotelName ?? 'Detail'),
-        leading: const BackButton(),
+        title: Text(_hotelName ?? 'Detail'), // ชื่อโรงแรม
+        leading: const BackButton(), // ปุ่ม back
       ),
       body: _hotelName == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator()) // โหลดอยู่
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // รูปโรงแรม
                   Container(
                     height: 180,
                     width: double.infinity,
@@ -134,17 +126,17 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                       borderRadius: BorderRadius.circular(8),
                       color: Colors.grey[300],
                       image: _imageUrl != null && _imageUrl != ""
-                          ? DecorationImage(
-                              image: NetworkImage(_imageUrl!),
-                              fit: BoxFit.cover,
-                            )
+                          ? DecorationImage(image: NetworkImage(_imageUrl!), fit: BoxFit.cover)
                           : null,
                     ),
                     child: (_imageUrl == null || _imageUrl == "")
                         ? const Center(child: Icon(Icons.image, size: 60))
                         : null,
                   ),
+
                   const SizedBox(height: 16),
+
+                  // ชื่อโรงแรม + ปุ่มดูรีวิว
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -153,52 +145,44 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                           _hotelName ?? '',
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                       ),
-                      const SizedBox(width: 8),
                       GestureDetector(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  ReviewPage(hotelId: widget.hotelId),
-                            ),
-                          );
+                          Navigator.push(context, MaterialPageRoute(
+                            builder: (_) => ReviewPage(hotelId: widget.hotelId),
+                          ));
                         },
-                        child: Text(
-                          "$_reviewCount Review",
-                          style: const TextStyle(
-                            color: Colors.pinkAccent,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
+                        child: Text("$_reviewCount Review",
+                            style: const TextStyle(
+                                color: Colors.pinkAccent,
+                                decoration: TextDecoration.underline)),
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 4),
-                  if (_avgRating != null) _buildStarRating(_avgRating!),
+                  if (_avgRating != null) _buildStarRating(_avgRating!), // ดาวให้คะแนน
+
                   const Divider(height: 32),
-                  Text(_description ?? 'No description',
-                      style: const TextStyle(fontSize: 14)),
+
+                  // รายละเอียดโรงแรม
+                  Text(_description ?? 'No description', style: const TextStyle(fontSize: 14)),
+
                   const SizedBox(height: 16),
-                  const Text("Location",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+
+                  // แผนที่ตำแหน่งโรงแรม
+                  const Text("Location", style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   SizedBox(
                     height: 200,
                     child: hasLocation
                         ? FlutterMap(
-                            options: MapOptions(
-                              center: LatLng(_latitude!, _longitude!),
-                              zoom: 15.0,
-                            ),
+                            options: MapOptions(center: LatLng(_latitude!, _longitude!), zoom: 15.0),
                             children: [
                               TileLayer(
-                                urlTemplate:
-                                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                                 userAgentPackageName: 'com.example.app',
                               ),
                               MarkerLayer(
@@ -207,8 +191,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                                     width: 40,
                                     height: 40,
                                     point: LatLng(_latitude!, _longitude!),
-                                    child: const Icon(Icons.location_pin,
-                                        color: Colors.red, size: 40),
+                                    child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
                                   )
                                 ],
                               ),
@@ -216,9 +199,11 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                           )
                         : const Center(child: CircularProgressIndicator()),
                   ),
+
                   const SizedBox(height: 16),
-                  const Text("Tag",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+
+                  // แท็ก
+                  const Text("Tag", style: TextStyle(fontWeight: FontWeight.bold)),
                   Wrap(
                     spacing: 8,
                     children: [
@@ -226,10 +211,12 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                       if (_province != null) Chip(label: Text('#$_province')),
                     ],
                   ),
+
                   const Divider(height: 32),
-                  const Text("Room",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text("Room", style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
+
+                  // รายการห้อง
                   ..._rooms.map((room) => _roomItem(context, room)),
                 ],
               ),
@@ -237,13 +224,13 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
     );
   }
 
+  // แสดงรายการห้องแต่ละห้อง
   Widget _roomItem(BuildContext context, dynamic room) {
     final roomType = room['room_type'] ?? 'Room';
     final roomImageUrl = room['room_image'];
     final priceValue = double.tryParse(room['room_price'].toString()) ?? 0;
     final priceText = '฿${priceValue.toStringAsFixed(2)}';
-    final checkInDate =
-        widget.bookingInfo.checkIn.toIso8601String().substring(0, 10);
+    final checkInDate = widget.bookingInfo.checkIn.toIso8601String().substring(0, 10);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -255,8 +242,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
             color: Colors.grey[300],
             borderRadius: BorderRadius.circular(8),
             image: roomImageUrl != null && roomImageUrl.isNotEmpty
-                ? DecorationImage(
-                    image: NetworkImage(roomImageUrl), fit: BoxFit.cover)
+                ? DecorationImage(image: NetworkImage(roomImageUrl), fit: BoxFit.cover)
                 : null,
           ),
           child: (roomImageUrl == null || roomImageUrl.isEmpty)
@@ -269,13 +255,11 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
           children: [
             Text(priceText),
             FutureBuilder<int>(
-              future:
-                  _fetchAvailableRooms(room['room_id'].toString(), checkInDate),
+              future: _fetchAvailableRooms(room['room_id'].toString(), checkInDate),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Text("Checking availability...");
                 } else if (snapshot.hasError) {
-                  print('Availability error: ${snapshot.error}');
                   return const Text("Error loading availability");
                 } else {
                   return Text("Available rooms: ${snapshot.data}");
@@ -285,60 +269,21 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
           ],
         ),
         trailing: ElevatedButton(
-          onPressed: () async {
-            final roomId = room['room_id'];
-            final numToBook = widget.bookingInfo.rooms;
-
-            final roomResp = await http.get(
-                Uri.parse('https://hotel-api-six.vercel.app/rooms/$roomId'));
-            if (roomResp.statusCode != 200) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('โหลดข้อมูลห้องไม่สำเร็จ')));
-              return;
-            }
-            final roomData = jsonDecode(roomResp.body);
-            final int roomQty = roomData is List
-                ? int.tryParse(roomData[0]['room_qty'].toString()) ?? 0
-                : int.tryParse(roomData['room_qty'].toString()) ?? 0;
-
-            final bookingResp = await http
-                .get(Uri.parse('https://hotel-api-six.vercel.app/booking'));
-            if (bookingResp.statusCode != 200) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('โหลดข้อมูลการจองไม่สำเร็จ')));
-              return;
-            }
-
-            final allBookings = jsonDecode(bookingResp.body);
-            int totalBooked = 0;
-            for (var b in allBookings) {
-              if (b['room_id'] == roomId) {
-                totalBooked += (b['num_rooms'] as num).toInt();
-              }
-            }
-
-            if (totalBooked + numToBook > roomQty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('ห้องเต็ม ไม่สามารถจองได้เพิ่มเติม')),
-              );
-              return;
-            }
-
+          onPressed: () {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => PaymentPage(
-                  roomType: room['room_type'],
-                  roomPrice: double.parse(room['room_price'].toString()),
-                  roomImageUrl: room['room_image'],
+                  roomType: roomType,
+                  roomPrice: priceValue,
+                  roomImageUrl: roomImageUrl,
                   bookingInfo: BookingInfo(
                     checkIn: widget.bookingInfo.checkIn,
                     checkOut: widget.bookingInfo.checkOut,
-                    rooms: numToBook,
+                    rooms: widget.bookingInfo.rooms,
                     guests: widget.bookingInfo.guests,
                     hotelId: widget.hotelId,
-                    roomId: roomId,
+                    roomId: room['room_id'],
                     userId: SessionManager.currentUser?['user_id'] ?? 0,
                   ),
                 ),
@@ -352,6 +297,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
   }
 }
 
+// ฟังก์ชันแสดงดาวคะแนนเฉลี่ย
 Widget _buildStarRating(double avgRating) {
   int fullStars = (avgRating / 2).floor();
   bool hasHalfStar = (avgRating / 2) % 1 >= 0.5;
@@ -359,15 +305,9 @@ Widget _buildStarRating(double avgRating) {
 
   return Row(
     children: [
-      for (int i = 0; i < fullStars; i++)
-        const Icon(Icons.star,
-            color: Color.fromARGB(255, 255, 131, 218), size: 20),
-      if (hasHalfStar)
-        const Icon(Icons.star_half,
-            color: Color.fromARGB(255, 255, 131, 218), size: 20),
-      for (int i = 0; i < emptyStars; i++)
-        const Icon(Icons.star_border,
-            color: Color.fromARGB(255, 255, 131, 218), size: 20),
+      for (int i = 0; i < fullStars; i++) const Icon(Icons.star, color: Color.fromARGB(255, 255, 131, 218), size: 20),
+      if (hasHalfStar) const Icon(Icons.star_half, color: Color.fromARGB(255, 255, 131, 218), size: 20),
+      for (int i = 0; i < emptyStars; i++) const Icon(Icons.star_border, color: Color.fromARGB(255, 255, 131, 218), size: 20),
     ],
   );
 }

@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:test3/models/booking_info.dart';
 import 'package:test3/screens/Detail.dart';
-import 'package:test3/screens/SearchBox.dart'; // ต้องใช้ตัวใหม่ที่รับ onSearch
+import 'package:test3/screens/SearchBox.dart';
 
+// StatefulWidget หน้า Home ของแอป
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -13,10 +14,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // เก็บโรงแรมทั้งหมด และโรงแรมที่ถูกกรอง
   List<dynamic> _allHotels = [];
   List<dynamic> _filteredHotels = [];
   BookingInfo? _bookingInfo;
 
+  // กำหนดข้อมูลการจองเริ่มต้น เช่น เช็คอินวันนี้ เช็คเอาท์พรุ่งนี้
   final BookingInfo _defaultBookingInfo = BookingInfo(
     checkIn: DateTime.now(),
     checkOut: DateTime.now().add(const Duration(days: 1)),
@@ -27,10 +30,11 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _bookingInfo = _defaultBookingInfo;
-    _fetchHotels();
+    _bookingInfo = _defaultBookingInfo; // กำหนดค่า default
+    _fetchHotels(); // โหลดข้อมูลโรงแรมจาก backend
   }
 
+  // โหลดข้อมูลโรงแรมทั้งหมด
   Future<void> _fetchHotels() async {
     try {
       final response = await http.get(
@@ -40,18 +44,17 @@ class _HomePageState extends State<HomePage> {
         final data = json.decode(response.body);
         setState(() {
           _allHotels = data;
-          _filteredHotels = data;
+          _filteredHotels = data; // แสดงทั้งหมดตอนเริ่ม
         });
-      } else {
-        print("Failed to load hotels: \${response.statusCode}");
       }
     } catch (e) {
       print("Error fetching hotels: \$e");
     }
   }
-  //ทำให้โชว์เฉพาะที่ search
+
+  // ฟังก์ชันสำหรับกรองโรงแรมตาม keyword และบันทึกข้อมูลการจอง
   void _filterHotels(String keyword, BookingInfo info) {
-    _bookingInfo = info;
+    _bookingInfo = info; // อัปเดตข้อมูลการจอง
     final search = keyword.toLowerCase();
     setState(() {
       _filteredHotels = _allHotels.where((hotel) {
@@ -66,6 +69,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: CustomScrollView(
+        // ใช้ sliver สำหรับ scroll ที่ลื่นไหล
         slivers: [
           const SliverAppBar(
             backgroundColor: Colors.white,
@@ -80,7 +84,7 @@ class _HomePageState extends State<HomePage> {
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: SearchBox(onSearch: _filterHotels),
+                child: SearchBox(onSearch: _filterHotels), // กำหนด callback
               ),
             ),
           ),
@@ -118,13 +122,13 @@ class _HomePageState extends State<HomePage> {
                         ),
                       );
                     },
-                    child: HotelCard(hotel: hotel),
+                    child: HotelCard(hotel: hotel), // สร้างการ์ดโรงแรม
                   );
                 },
-                childCount: _filteredHotels.length,
+                childCount: _filteredHotels.length, // จำนวนโรงแรมที่กรองได้
               ),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
+                crossAxisCount: 2, // แสดง 2 คอลัมน์
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
                 childAspectRatio: 0.7,
@@ -137,6 +141,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+// Delegate ของ SliverPersistentHeader สำหรับแสดง SearchBox
 class _SearchBoxDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
   _SearchBoxDelegate({required this.child});
@@ -159,11 +164,13 @@ class _SearchBoxDelegate extends SliverPersistentHeaderDelegate {
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
       true;
 }
-//แผ่น โรงแรม
+
+// วิดเจ็ตการ์ดแสดงข้อมูลโรงแรม
 class HotelCard extends StatelessWidget {
   final dynamic hotel;
   const HotelCard({super.key, required this.hotel});
 
+  // คำนวณค่าเฉลี่ยดาวจากรีวิว
   double _averageRating(List<dynamic> reviews) {
     if (reviews.isEmpty) return 0;
     double sum = 0;
@@ -189,6 +196,7 @@ class HotelCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // รูปภาพโรงแรม
           Container(
             height: 100,
             width: double.infinity,
@@ -199,14 +207,15 @@ class HotelCard extends StatelessWidget {
               image: hotel['hotel_image'] != null && hotel['hotel_image'] != ""
                   ? DecorationImage(
                       image: NetworkImage(hotel['hotel_image']),
-                      fit: BoxFit.cover,
-                    )
+                      fit: BoxFit.cover)
                   : null,
             ),
             child: hotel['hotel_image'] == null || hotel['hotel_image'] == ""
                 ? const Center(child: Icon(Icons.image, color: Colors.grey))
                 : null,
           ),
+
+          // ข้อมูลโรงแรม
           Padding(
             padding: const EdgeInsets.all(8),
             child: Column(
@@ -219,6 +228,8 @@ class HotelCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
+
+                // ที่อยู่
                 Row(
                   children: [
                     const Icon(Icons.location_on, size: 14, color: Colors.grey),
@@ -233,7 +244,10 @@ class HotelCard extends StatelessWidget {
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 4),
+
+                // รีวิว
                 reviews.isNotEmpty
                     ? Row(
                         children: [
