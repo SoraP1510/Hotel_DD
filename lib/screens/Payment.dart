@@ -221,8 +221,8 @@ class PaymentPage extends StatelessWidget {
                   Uri.parse('https://hotel-api-six.vercel.app/booking'),
                   headers: {'Content-Type': 'application/json'},
                   body: json.encode({
-                    'check_in': bookingInfo.checkIn.toIso8601String(),
-                    'check_out': bookingInfo.checkOut.toIso8601String(),
+                    'check_in': checkIn.toString(),
+                    'check_out': checkOut.toString(),
                     'num_guest': bookingInfo.guests,
                     'num_rooms': bookingInfo.rooms,
                     'total_price': total.toStringAsFixed(2),
