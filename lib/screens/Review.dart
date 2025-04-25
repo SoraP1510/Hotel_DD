@@ -176,7 +176,7 @@ class _ReviewPageState extends State<ReviewPage> {
       final rating = r['rating'] ?? 0;
       sum += (rating as num).toDouble();
     }
-    final avg = (count == 0) ? 0 : sum / count;
+    final double avg = (count == 0) ? 0 : sum / count;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -192,15 +192,9 @@ class _ReviewPageState extends State<ReviewPage> {
           const SizedBox(height: 8),
           Text("$count Review(s)", style: const TextStyle(color: Colors.pinkAccent)),
           Text(avg.toStringAsFixed(1)), // ค่าเฉลี่ยดาว
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(5, (index) {
-              return Icon(
-                index < avg.round() ? Icons.star : Icons.star_border,
-                color: Colors.pinkAccent,
-              );
-            }),
-          ),
+          const SizedBox(height: 4),
+                  if (avg != null)
+                    _buildStarRating(avg!), // ดาวให้คะแนน
         ],
       ),
     );
@@ -296,4 +290,24 @@ class _ReviewPageState extends State<ReviewPage> {
       ),
     );
   }
+}
+Widget _buildStarRating(double avgRating) {
+  int fullStars = (avgRating).floor();
+  bool hasHalfStar = (avgRating) % 1 >= 0.5;
+  int emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      for (int i = 0; i < fullStars; i++)
+        const Icon(Icons.star,
+            color: Color.fromARGB(255, 255, 131, 218), size: 30),
+      if (hasHalfStar)
+        const Icon(Icons.star_half,
+            color: Color.fromARGB(255, 255, 131, 218), size: 30),
+      for (int i = 0; i < emptyStars; i++)
+        const Icon(Icons.star_border,
+            color: Color.fromARGB(255, 255, 131, 218), size: 30),
+    ],
+  );
 }
