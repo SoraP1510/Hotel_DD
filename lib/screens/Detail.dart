@@ -327,8 +327,8 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
 
 // ฟังก์ชันแสดงดาวคะแนนเฉลี่ย
 Widget _buildStarRating(double avgRating) {
-  int fullStars = (avgRating / 2).floor();
-  bool hasHalfStar = (avgRating / 2) % 1 >= 0.5;
+  int fullStars = (avgRating).floor();
+  bool hasHalfStar = (avgRating) % 1 >= 0.5;
   int emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
   return Row(
