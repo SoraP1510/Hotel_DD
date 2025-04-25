@@ -293,6 +293,16 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
         ),
         trailing: ElevatedButton(
           onPressed: () async {
+            //เช็กใช้ล็อกอิน
+            if (SessionManager.currentUser == null) {
+              //แจ้งเตือนให้ไปล็อกอินก่อน
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("กรุณาล็อกอินก่อนทำการจอง")),
+              );
+              return;
+            }
+
+            //ถ้าล็อกอินไปหน้า PaymentPage
             final result = await Navigator.push(
               context,
               MaterialPageRoute(
@@ -307,15 +317,15 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                     guests: widget.bookingInfo.guests,
                     hotelId: widget.hotelId,
                     roomId: room['room_id'],
-                    userId: SessionManager.currentUser?['user_id'] ?? 0,
+                    userId: SessionManager
+                        .currentUser!['user_id'], // ✅ เชื่อม user_id
                   ),
                 ),
               ),
             );
 
-// หลังจากกลับมาจาก PaymentPage ให้เช็กว่ามีการจองสำเร็จ แล้ว refresh
             if (result == 'refresh') {
-              _fetchRooms(); // โหลดห้องใหม่
+              _fetchRooms();
             }
           },
           child: const Text("Book now"),
